@@ -1,4 +1,4 @@
-# NeedroN — Portfolio
+# NeedroN — Portfolio [WIP]
 
 A personal portfolio website introducing NeedroN and showcasing selected work.
 
