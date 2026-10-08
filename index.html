@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- ========== Page info (tab title, search and share previews) ========== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Needron · Muhammad Nordeen Syahmi Bin Salfarudeen</title>
+    <meta name="description" content="Portfolio of Nordeen, Computer Science (Multimedia Computing) student and illustrator.">
+    <meta property="og:title" content="Needron · Muhammad Nordeen Syahmi Bin Salfarudeen">
+    <meta property="og:description" content="Computer Science student and illustrator.">
+    <meta property="og:image" content="assets/img/og-cover.jpg">
+    <meta name="theme-color" content="#09070f">
+    <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+
+    <!-- ========== Fonts (Inter for text, Outfit for headings) ========== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ========== Styles ========== -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Marks that JavaScript is on, so elements can start hidden before they animate in -->
+    <script>document.documentElement.classList.add('js')</script>
+</head>
+
+<body>
+    <!-- Starfield background (drawn by main.js) -->
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <!-- ========== Navigation bar ========== -->
+    <header class="nav">
+        <div class="wrap">
+            <a class="logo" href="./"><img src="assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
+
+            <!-- Hamburger button (phones only) -->
+            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span><span></span><span></span>
+            </button>
+
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="skills.html">Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <!-- ========== Hero (first screen) ========== -->
+        <section class="hero" id="top">
+            <div class="wrap">
+                <p class="hero-tag hero-fade"><i></i>Open to internships &amp; commissions</p>
+
+                <h1>
+                    <span class="line"><span>Hi, I'm</span></span>
+                    <span class="line name"><span class="grad">Muhammad Nordeen Syahmi Bin Salfarudeen</span></span>
+                </h1>
+
+                <p class="hero-roles hero-fade">
+                    <strong>Computer Science (Multimedia Computing)</strong> student and
+                    <strong>anime-style illustrator</strong>, building things where code meets art.
+                </p>
+
+                <div class="hero-cta hero-fade">
+                    <a class="btn btn-primary" href="#projects">View my work</a>
+                    <a class="btn" href="#contact">Get in touch</a>
+                </div>
+
+                <p class="scroll-hint hero-fade">Scroll</p>
+            </div>
+        </section>
+
+        <!-- ========== About ========== -->
+        <section class="section" id="about">
+            <div class="wrap about-grid">
+                <!-- Portrait: add assets/img/avatar.webp (800×800) -->
+                <div class="portrait ph reveal" data-label="avatar.webp · 800×800">
+                    <img src="assets/img/avatar.webp" alt="Portrait of Nordeen" width="800" height="800" loading="lazy">
+                </div>
+
+                <div class="reveal">
+                    <p class="eyebrow">About</p>
+                    <h2 class="section-title">Developer by day, <span class="grad">illustrator</span> by night.</h2>
+                    <p class="lead">Short bio goes here. Two or three sentences about who you are, what you enjoy building and drawing, and what you are looking for next.</p>
+
+                    <!-- Quick facts -->
+                    <div class="facts">
+                        <div class="fact"><small>Studying</small><span>B.Sc. Computer Science (Multimedia Computing)</span></div>
+                        <div class="fact"><small>University</small><span>Universiti Tun Hussein Onn Malaysia</span></div>
+                        <div class="fact"><small>Also</small><span>Anime-style illustrator</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== Projects ========== -->
+        <section class="section" id="projects">
+            <div class="wrap">
+                <div class="reveal">
+                    <p class="eyebrow">Projects</p>
+                    <h2 class="section-title">Selected work</h2>
+                    <p class="lead">A preview of everything. Open a card for the full overview and description.</p>
+                </div>
+
+                <!-- Category tabs -->
+                <div class="tabs" role="tablist" aria-label="Project categories">
+                    <span class="tab-pill" aria-hidden="true"></span>
+                    <button class="tab" role="tab" id="tab-cs" aria-controls="panel-cs" aria-selected="true" data-hash="cs">Computer Science</button>
+                    <button class="tab" role="tab" id="tab-art" aria-controls="panel-art" aria-selected="false" data-hash="illustration">Illustration</button>
+                </div>
+
+                <!-- ----- Tab 1: Computer Science (cards are 16:10, image 1200×750) ----- -->
+                <div class="tab-panel" id="panel-cs" role="tabpanel" aria-labelledby="tab-cs">
+                    <div class="cards reveal" data-stagger>
+
+                        <!-- Card: HimeAI -->
+                        <a class="card" href="projects/himeai.html">
+                            <div class="ph" data-label="projects/himeai-thumb.webp · 1200×750">
+                                <img src="assets/img/projects/himeai-thumb.webp" alt="HimeAI preview" width="1200" height="750" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <ul class="tags"><li>Python</li><li>FastAPI</li><li>LLM</li></ul>
+                                <h3>HimeAI</h3>
+                                <p>A desktop AI companion that listens, remembers, and helps with everyday tasks, personified by an anime VTuber mascot.</p>
+                                <span class="link-arrow">Project overview</span>
+                            </div>
+                        </a>
+
+                        <!-- Card: Project Two (placeholder) -->
+                        <a class="card" href="projects/template.html">
+                            <div class="ph" data-label="projects/project-02-thumb.webp · 1200×750">
+                                <img src="assets/img/projects/project-02-thumb.webp" alt="Project two preview" width="1200" height="750" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <ul class="tags"><li>Tag</li><li>Tag</li></ul>
+                                <h3>Project Two</h3>
+                                <p>One or two lines describing the project and what makes it interesting.</p>
+                                <span class="link-arrow">Project overview</span>
+                            </div>
+                        </a>
+
+                        <!-- Card: Coming soon (not clickable) -->
+                        <div class="card soon">
+                            <div class="ph"></div>
+                            <div class="card-body">
+                                <h3>Coming soon</h3>
+                                <p>Next project in progress.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ----- Tab 2: Illustration (cards are 4:5 portrait, image 960×1200) ----- -->
+                <div class="tab-panel" id="panel-art" role="tabpanel" aria-labelledby="tab-art" hidden>
+                    <div class="cards art">
+
+                        <!-- Artwork 1 -->
+                        <a class="card" href="projects/art-01.html">
+                            <div class="ph" data-label="art/art-01-thumb.webp · 960×1200">
+                                <img src="assets/img/art/art-01-thumb.webp" alt="Illustration one" width="960" height="1200" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <ul class="tags"><li>Character</li></ul>
+                                <h3>Hime Character Sheet</h3>
+                                <p>Mascot design for HimeAI.</p>
+                            </div>
+                        </a>
+
+                        <!-- Artwork 2 -->
+                        <a class="card" href="projects/template.html">
+                            <div class="ph" data-label="art/art-02-thumb.webp · 960×1200">
+                                <img src="assets/img/art/art-02-thumb.webp" alt="Illustration two" width="960" height="1200" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <ul class="tags"><li>Fan art</li></ul>
+                                <h3>Artwork Title</h3>
+                                <p>Short caption.</p>
+                            </div>
+                        </a>
+
+                        <!-- Artwork 3 -->
+                        <a class="card" href="projects/template.html">
+                            <div class="ph" data-label="art/art-03-thumb.webp · 960×1200">
+                                <img src="assets/img/art/art-03-thumb.webp" alt="Illustration three" width="960" height="1200" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <ul class="tags"><li>Original</li></ul>
+                                <h3>Artwork Title</h3>
+                                <p>Short caption.</p>
+                            </div>
+                        </a>
+
+                        <!-- Artwork 4 -->
+                        <a class="card" href="projects/template.html">
+                            <div class="ph" data-label="art/art-04-thumb.webp · 960×1200">
+                                <img src="assets/img/art/art-04-thumb.webp" alt="Illustration four" width="960" height="1200" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <ul class="tags"><li>Commission</li></ul>
+                                <h3>Artwork Title</h3>
+                                <p>Short caption.</p>
+                            </div>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== Skills preview (full list is on skills.html) ========== -->
+        <section class="section" id="skills">
+            <div class="wrap">
+                <div class="reveal">
+                    <p class="eyebrow">Skills</p>
+                    <h2 class="section-title">What I work with</h2>
+                    <p class="lead">A quick look. The skills page has levels and details for each one.</p>
+                </div>
+
+                <div class="skill-preview reveal" data-stagger>
+                    <div class="skill-box">
+                        <h3>Programming</h3>
+                        <ul class="tags"><li>Python</li><li>JavaScript</li><li>HTML/CSS</li><li>Java</li></ul>
+                    </div>
+                    <div class="skill-box">
+                        <h3>AI &amp; Backend</h3>
+                        <ul class="tags"><li>PyTorch</li><li>FastAPI</li><li>Ollama</li><li>SQLite</li></ul>
+                    </div>
+                    <div class="skill-box">
+                        <h3>Multimedia</h3>
+                        <ul class="tags"><li>UI/UX</li><li>Animation</li><li>Video editing</li></ul>
+                    </div>
+                    <div class="skill-box">
+                        <h3>Illustration</h3>
+                        <ul class="tags"><li>Clip Studio Paint</li><li>Character design</li><li>Coloring</li></ul>
+                    </div>
+                </div>
+
+                <a class="link-arrow reveal" href="skills.html">See all skills</a>
+            </div>
+        </section>
+
+        <!-- ========== Contact ========== -->
+        <section class="section" id="contact">
+            <div class="wrap">
+                <div class="contact-card reveal">
+                    <p class="eyebrow">Contact</p>
+                    <h2 class="section-title">Let's make something <span class="grad">stellar</span>.</h2>
+                    <p class="lead">Open to internships, collaborations, and illustration commissions. The fastest way to reach me is email.</p>
+
+                    <!-- Email: replace both the link and the text -->
+                    <a class="btn btn-primary" href="mailto:you@example.com">you@example.com</a>
+
+                    <!-- Social links: replace the URLs with your own -->
+                    <div class="socials">
+                        <a class="btn" href="https://github.com/your-username" target="_blank" rel="noopener">GitHub</a>
+                        <a class="btn" href="https://www.linkedin.com/in/your-profile" target="_blank" rel="noopener">LinkedIn</a>
+                        <a class="btn" href="https://www.pixiv.net/" target="_blank" rel="noopener">Pixiv</a>
+                        <a class="btn" href="https://x.com/your-handle" target="_blank" rel="noopener">X / Twitter</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== Footer and colophon ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="colophon">
+                <div>
+                    <a class="logo" href="./"><img src="assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
+                    <p style="margin-top:12px">Portfolio of Nordeen. Code and illustrations by me unless noted.</p>
+                </div>
+                <div>
+                    <h2>Colophon</h2>
+                    <ul>
+                        <li>Handwritten HTML, CSS &amp; JS</li>
+                        <li>Motion by <a href="https://animejs.com" target="_blank" rel="noopener">anime.js</a></li>
+                        <li>Hosted on GitHub Pages</li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>Type</h2>
+                    <ul>
+                        <li><a href="https://fonts.google.com/specimen/Outfit" target="_blank" rel="noopener">Outfit</a> for headings</li>
+                        <li><a href="https://fonts.google.com/specimen/Inter" target="_blank" rel="noopener">Inter</a> for text</li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>Palette</h2>
+                    <ul>
+                        <li>Nebula pink · violet · night</li>
+                        <li>Dark mode, galaxy theme</li>
+                        <li>Respects reduced motion</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>© <span data-year>2026</span> Muhammad Nordeen Syahmi Bin Salfarudeen</span>
+                <a href="#top">Back to top ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== Scripts (anime.js for motion, then the site's own script) ========== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
+    <script src="assets/js/main.js" defer></script>
+</body>
+</html>

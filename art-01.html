@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- ========== Page info ========== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hime Character Sheet · Needron</title>
+    <meta name="description" content="Character design for Hime, the mascot of HimeAI: turnaround, expressions and color palette.">
+    <meta name="theme-color" content="#09070f">
+    <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml">
+
+    <!-- ========== Fonts ========== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ========== Styles ========== -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script>document.documentElement.classList.add('js')</script>
+</head>
+
+<body>
+    <!-- Starfield background -->
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <!-- ========== Navigation bar ========== -->
+    <header class="nav">
+        <div class="wrap">
+            <a class="logo" href="../index.html"><img src="../assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
+            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="../index.html#about">About</a></li>
+                <li><a href="../index.html#projects">Projects</a></li>
+                <li><a href="../skills.html">Skills</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <!-- ========== Project header: title, tagline and quick facts ========== -->
+        <header class="page-head">
+            <a class="back" href="../index.html#illustration">← All projects</a>
+            <p class="eyebrow">Illustration</p>
+            <h1 class="reveal">Hime Character Sheet</h1>
+            <p class="lead reveal">Character design for Hime, the mascot of HimeAI: turnaround, expressions and color palette.</p>
+            <div class="meta reveal" data-stagger>
+                <div class="fact"><small>Medium</small><span>Digital</span></div>
+                <div class="fact"><small>Software</small><span>Clip Studio Paint</span></div>
+                <div class="fact"><small>Year</small><span>2026</span></div>
+                <div class="fact"><small>Canvas</small><span>3000×3750 px</span></div>
+            </div>
+        </header>
+
+        <!-- ========== Cover image (2400×3000) ========== -->
+        <div class="cover portrait-cover ph reveal" data-label="art/art-01.webp · 2400×3000">
+            <img src="../assets/img/art/art-01.webp" alt="Hime Character Sheet cover">
+        </div>
+
+        <!-- ========== Overview and description ========== -->
+        <article class="prose">
+            <section class="reveal">
+                <h2>Overview</h2>
+                <p>Placeholder: the idea behind the piece and who or what it is for.</p>
+            </section>
+            <section class="reveal">
+                <h2>Process</h2>
+                <p>Placeholder: sketch, line art, coloring and lighting steps, and anything you tried for the first time.</p>
+            </section>
+        </article>
+
+        <!-- ========== Gallery ========== -->
+        <section class="reveal">
+            <h2 class="section-title" style="font-size:1.5rem;margin-top:56px">Gallery</h2>
+            <div class="gallery">
+                <div class="ph" data-label="art/art-01-wip-1.webp · 1600×1000"><img src="../assets/img/art/art-01-wip-1.webp" alt="Sketch stage" loading="lazy"></div>
+                <div class="ph" data-label="art/art-01-wip-2.webp · 1600×1000"><img src="../assets/img/art/art-01-wip-2.webp" alt="Line art stage" loading="lazy"></div>
+                <div class="ph" data-label="art/art-01-wip-3.webp · 1600×1000"><img src="../assets/img/art/art-01-wip-3.webp" alt="Color stage" loading="lazy"></div>
+            </div>
+        </section>
+
+        <!-- ========== Links ========== -->
+        <div class="hero-cta reveal" style="margin-top:40px">
+            <a class="btn btn-primary" href="https://www.pixiv.net/" target="_blank" rel="noopener">View on Pixiv</a>
+        </div>
+
+        <!-- ========== Previous / next project ========== -->
+        <nav class="pager" aria-label="More projects">
+            <a href="template.html"><small>Next</small>Artwork Title</a>
+        </nav>
+    </main>
+
+    <!-- ========== Footer ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="footer-bottom">
+                <span>© <span data-year>2026</span> Muhammad Nordeen Syahmi Bin Salfarudeen · Needron</span>
+                <a href="../index.html#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== Scripts ========== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
+    <script src="../assets/js/main.js" defer></script>
+</body>
+</html>

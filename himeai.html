@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- ========== Page info ========== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HimeAI · Needron</title>
+    <meta name="description" content="A local desktop AI companion that understands speech, remembers conversations, controls the computer, and helps with everyday tasks, personified by the HimeAI VTuber mascot.">
+    <meta name="theme-color" content="#09070f">
+    <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml">
+
+    <!-- ========== Fonts ========== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ========== Styles ========== -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script>document.documentElement.classList.add('js')</script>
+</head>
+
+<body>
+    <!-- Starfield background -->
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <!-- ========== Navigation bar ========== -->
+    <header class="nav">
+        <div class="wrap">
+            <a class="logo" href="../index.html"><img src="../assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
+            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="../index.html#about">About</a></li>
+                <li><a href="../index.html#projects">Projects</a></li>
+                <li><a href="../skills.html">Skills</a></li>
+                <li><a href="../index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <!-- ========== Project header: title, tagline and quick facts ========== -->
+        <header class="page-head">
+            <a class="back" href="../index.html#cs">← All projects</a>
+            <p class="eyebrow">Computer Science</p>
+            <h1 class="reveal">HimeAI</h1>
+            <p class="lead reveal">A local desktop AI companion that understands speech, remembers conversations, controls the computer, and helps with everyday tasks, personified by the HimeAI VTuber mascot.</p>
+            <div class="meta reveal" data-stagger>
+                <div class="fact"><small>Role</small><span>Solo developer</span></div>
+                <div class="fact"><small>Year</small><span>2026</span></div>
+                <div class="fact"><small>Stack</small><span>Python · FastAPI · PyTorch</span></div>
+                <div class="fact"><small>Status</small><span>In development</span></div>
+            </div>
+        </header>
+
+        <!-- ========== Cover image (1920×1080) ========== -->
+        <div class="cover ph reveal" data-label="projects/himeai-cover.webp · 1920×1080">
+            <img src="../assets/img/projects/himeai-cover.webp" alt="HimeAI cover">
+        </div>
+
+        <!-- ========== Overview and description ========== -->
+        <article class="prose">
+            <section class="reveal">
+                <h2>Overview</h2>
+                <p>HimeAI is a personal assistant that runs locally on my own PC. A FastAPI backend serves a web chat interface over REST and WebSocket, and Hime replies with text, expressions and gestures that drive her avatar.</p>
+            </section>
+            <section class="reveal">
+                <h2>Description</h2>
+                <p>I am building my own small Transformer language model from scratch as a learning project, trained on TinyStories and fine-tuned for chat, alongside selectable Ollama models for everyday use.</p>
+                <ul>
+                    <li>Own Transformer LLM: tokenizer, attention, training loop and inference written by hand</li>
+                    <li>Ollama model option with personality presets</li>
+                    <li>Emotion and gesture tags that animate the avatar</li>
+                    <li>Allow-listed PC control with an emergency stop</li>
+                    <li>Planned: Japanese and English voice, speech input, long-term memory</li>
+                </ul>
+            </section>
+            <section class="reveal">
+                <h2>What I learned</h2>
+                <p>Placeholder: a short paragraph about the hardest problem you solved and what you would do differently.</p>
+            </section>
+        </article>
+
+        <!-- ========== Gallery ========== -->
+        <section class="reveal">
+            <h2 class="section-title" style="font-size:1.5rem;margin-top:56px">Gallery</h2>
+            <div class="gallery">
+                <div class="ph" data-label="projects/himeai-01.webp · 1600×1000"><img src="../assets/img/projects/himeai-01.webp" alt="HimeAI chat interface" loading="lazy"></div>
+                <div class="ph" data-label="projects/himeai-02.webp · 1600×1000"><img src="../assets/img/projects/himeai-02.webp" alt="HimeAI avatar expressions" loading="lazy"></div>
+                <div class="ph" data-label="projects/himeai-03.webp · 1600×1000"><img src="../assets/img/projects/himeai-03.webp" alt="HimeAI training run" loading="lazy"></div>
+            </div>
+        </section>
+
+        <!-- ========== Links ========== -->
+        <div class="hero-cta reveal" style="margin-top:40px">
+            <a class="btn btn-primary" href="https://github.com/your-username/HimeAI" target="_blank" rel="noopener">View on GitHub</a>
+            <a class="btn" href="#" target="_blank" rel="noopener">Watch demo</a>
+        </div>
+
+        <!-- ========== Previous / next project ========== -->
+        <nav class="pager" aria-label="More projects">
+            <a href="template.html"><small>Next</small>Project Two</a>
+        </nav>
+    </main>
+
+    <!-- ========== Footer ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="footer-bottom">
+                <span>© <span data-year>2026</span> Muhammad Nordeen Syahmi Bin Salfarudeen · Needron</span>
+                <a href="../index.html#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== Scripts ========== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
+    <script src="../assets/js/main.js" defer></script>
+</body>
+</html>

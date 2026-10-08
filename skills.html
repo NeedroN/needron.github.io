@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- ========== Page info ========== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills · Needron</title>
+    <meta name="description" content="Skills of Nordeen in programming, AI, multimedia and illustration.">
+    <meta name="theme-color" content="#09070f">
+    <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+
+    <!-- ========== Fonts ========== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ========== Styles ========== -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script>document.documentElement.classList.add('js')</script>
+</head>
+
+<body>
+    <!-- Starfield background -->
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <!-- ========== Navigation bar ========== -->
+    <header class="nav">
+        <div class="wrap">
+            <a class="logo" href="index.html"><img src="assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
+            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#projects">Projects</a></li>
+                <li><a href="skills.html" aria-current="page">Skills</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Level bars: change the % in style="--lvl:80%" to set how full each bar is -->
+    <main class="wrap">
+        <!-- ========== Page header ========== -->
+        <header class="page-head">
+            <a class="back" href="index.html#skills">← Back home</a>
+            <p class="eyebrow">Skills</p>
+            <h1 class="reveal">Skills &amp; <span class="grad">tools</span></h1>
+            <p class="lead reveal">Levels are self-assessed. Placeholder values for now.</p>
+        </header>
+
+        <!-- ========== Programming ========== -->
+        <section class="skill-group reveal">
+            <h2>Programming</h2>
+            <ul class="skill-list">
+                <!-- Python (80%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Python</span><small>Advanced</small></div>
+                    <div class="bar"><i style="--lvl:80%"></i></div>
+                    <p>Backend, AI and scripting. Used across HimeAI.</p>
+                </li>
+
+                <!-- JavaScript (65%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>JavaScript</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:65%"></i></div>
+                    <p>Web interfaces and this site.</p>
+                </li>
+
+                <!-- HTML &amp; CSS (75%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>HTML &amp; CSS</span><small>Advanced</small></div>
+                    <div class="bar"><i style="--lvl:75%"></i></div>
+                    <p>Responsive, accessible layouts.</p>
+                </li>
+
+                <!-- Java (55%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Java</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:55%"></i></div>
+                    <p>Coursework and OOP.</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ========== AI &amp; Backend ========== -->
+        <section class="skill-group reveal">
+            <h2>AI &amp; Backend</h2>
+            <ul class="skill-list">
+                <!-- PyTorch (60%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>PyTorch</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:60%"></i></div>
+                    <p>Training a Transformer from scratch.</p>
+                </li>
+
+                <!-- FastAPI (70%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>FastAPI</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:70%"></i></div>
+                    <p>REST and WebSocket APIs.</p>
+                </li>
+
+                <!-- Ollama (65%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Ollama</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:65%"></i></div>
+                    <p>Running local LLMs.</p>
+                </li>
+
+                <!-- SQLite (50%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>SQLite</span><small>Learning</small></div>
+                    <div class="bar"><i style="--lvl:50%"></i></div>
+                    <p>Long-term memory store.</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ========== Multimedia ========== -->
+        <section class="skill-group reveal">
+            <h2>Multimedia</h2>
+            <ul class="skill-list">
+                <!-- UI/UX design (65%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>UI/UX design</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:65%"></i></div>
+                    <p>Wireframes to polished interfaces.</p>
+                </li>
+
+                <!-- Motion &amp; animation (60%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Motion &amp; animation</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:60%"></i></div>
+                    <p>Web motion and 2D animation.</p>
+                </li>
+
+                <!-- Video editing (55%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Video editing</span><small>Intermediate</small></div>
+                    <div class="bar"><i style="--lvl:55%"></i></div>
+                    <p>Editing and compositing.</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ========== Illustration ========== -->
+        <section class="skill-group reveal">
+            <h2>Illustration</h2>
+            <ul class="skill-list">
+                <!-- Character design (80%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Character design</span><small>Advanced</small></div>
+                    <div class="bar"><i style="--lvl:80%"></i></div>
+                    <p>Anime-style original characters.</p>
+                </li>
+
+                <!-- Coloring &amp; lighting (75%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Coloring &amp; lighting</span><small>Advanced</small></div>
+                    <div class="bar"><i style="--lvl:75%"></i></div>
+                    <p>Cel and soft shading.</p>
+                </li>
+
+                <!-- Clip Studio Paint (80%) -->
+                <li class="skill">
+                    <div class="skill-top"><span>Clip Studio Paint</span><small>Advanced</small></div>
+                    <div class="bar"><i style="--lvl:80%"></i></div>
+                    <p>Main drawing software.</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ========== Currently learning ========== -->
+        <section class="skill-group reveal">
+            <h2>Currently learning</h2>
+            <ul class="tags"><li>Speech recognition</li><li>Text-to-speech</li><li>Live2D</li><li>Three.js</li></ul>
+        </section>
+    </main>
+
+    <!-- ========== Footer ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="footer-bottom">
+                <span>© <span data-year>2026</span> Muhammad Nordeen Syahmi Bin Salfarudeen · Needron</span>
+                <a href="index.html#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== Scripts ========== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
+    <script src="assets/js/main.js" defer></script>
+</body>
+</html>
