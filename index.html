@@ -183,15 +183,9 @@
                 <div class="section-head">
                     <p class="label">Selected work</p>
                     <h2 class="title" data-reveal>Projects and artwork.</h2>
-                    <p class="intro" data-reveal>Open any card for the full story.</p>
+                    <p class="intro" data-reveal>One featured project and my illustration gallery. Open either for the full story.</p>
                 </div>
 
-                <!-- Filter chips: data-filter matches each card's data-cat -->
-                <div class="filters" role="group" aria-label="Filter projects" data-reveal>
-                    <button class="chip" data-filter="all" aria-pressed="true">All <small></small></button>
-                    <button class="chip" data-filter="cs" aria-pressed="false">Computer Science <small></small></button>
-                    <button class="chip" data-filter="art" aria-pressed="false">Illustration <small></small></button>
-                </div>
 
                 <div class="work-grid" data-stagger>
 
@@ -214,58 +208,49 @@
                         </div>
                     </a>
 
-                    <!-- Illustration 1 (shows as "Coming soon" on the live site until its thumbnail exists) -->
-                    <a class="card" data-cat="art" href="projects/art-01.html" style="--c: var(--pink)">
-                        <div class="card-media ph" data-file="art/art-01-thumb.webp">
-                            <img src="assets/img/art/art-01-thumb.webp" alt="Original character illustration" loading="lazy">
+                    <!-- Illustration gallery: one of your artworks as the cover, links to every piece -->
+                    <a class="card" data-cat="art" data-keep href="projects/illustrations.html" style="--c: var(--pink)">
+                        <div class="card-media ph" data-file="art/gallery-thumb.webp">
+                            <img src="assets/img/art/gallery-thumb.webp" alt="One of my illustrations" loading="lazy">
                         </div>
                         <div class="card-body">
                             <span class="card-cat">Illustration</span>
-                            <h3>Original character</h3>
-                            <p>A full illustration of one of my own characters.</p>
-                            <span class="link">View artwork <span>→</span></span>
+                            <h3>Illustration gallery</h3>
+                            <p>All my artwork in one place: original characters, fan art and sketches.</p>
+                            <span class="link">Open the gallery <span>→</span></span>
                         </div>
                     </a>
 
-                    <!-- Project 2 (shows as "Coming soon" on the live site until its thumbnail exists) -->
-                    <a class="card" data-cat="cs" href="projects/template.html" style="--c: var(--sky)">
-                        <div class="card-media ph" data-file="projects/project-02-thumb.webp">
-                            <img src="assets/img/projects/project-02-thumb.webp" alt="Project two preview" loading="lazy">
-                        </div>
-                        <div class="card-body">
+                </div>
+
+                <!-- ----- Coming soon: work in progress, shown under Work ----- -->
+                <!-- Edit the three cards below; delete one when it's finished and gets a real card above -->
+                <div class="coming" id="coming-soon">
+                    <div class="coming-head">
+                        <h3 class="coming-title" aria-label="Coming soon">Coming soon</h3>
+                        <p>What I'm working on right now.</p>
+                    </div>
+
+                    <div class="coming-grid" data-stagger>
+                        <article class="soon-card" style="--c: var(--sky)">
                             <span class="card-cat">Computer Science</span>
-                            <h3>Next project</h3>
-                            <p>A new programming project is in the works.</p>
-                            <span class="link">Read more <span>→</span></span>
-                        </div>
-                    </a>
-
-                    <!-- Illustration 2 (shows as "Coming soon" on the live site until its thumbnail exists) -->
-                    <a class="card" data-cat="art" href="projects/template.html" style="--c: var(--pink)">
-                        <div class="card-media ph" data-file="art/art-02-thumb.webp">
-                            <img src="assets/img/art/art-02-thumb.webp" alt="Fan art illustration" loading="lazy">
-                        </div>
-                        <div class="card-body">
+                            <h4>Hime's voice</h4>
+                            <p>Japanese and English speech for HimeAI, plus voice input.</p>
+                            <span class="soon-status"><i></i>In progress</span>
+                        </article>
+                        <article class="soon-card" style="--c: var(--sky)">
+                            <span class="card-cat">Computer Science</span>
+                            <h4>Next project</h4>
+                            <p>A new programming project, separate from HimeAI.</p>
+                            <span class="soon-status"><i></i>Planning</span>
+                        </article>
+                        <article class="soon-card" style="--c: var(--pink)">
                             <span class="card-cat">Illustration</span>
-                            <h3>Fan art</h3>
-                            <p>Characters from series I love, in my own style.</p>
-                            <span class="link">View artwork <span>→</span></span>
-                        </div>
-                    </a>
-
-                    <!-- Illustration 3 (shows as "Coming soon" on the live site until its thumbnail exists) -->
-                    <a class="card" data-cat="art" href="projects/template.html" style="--c: var(--pink)">
-                        <div class="card-media ph" data-file="art/art-03-thumb.webp">
-                            <img src="assets/img/art/art-03-thumb.webp" alt="Sketchbook pages" loading="lazy">
-                        </div>
-                        <div class="card-body">
-                            <span class="card-cat">Illustration</span>
-                            <h3>Sketchbook</h3>
-                            <p>Sketches, studies and work in progress.</p>
-                            <span class="link">View artwork <span>→</span></span>
-                        </div>
-                    </a>
-
+                            <h4>Original character series</h4>
+                            <p>A set of illustrations of my own characters, added to the gallery as each is finished.</p>
+                            <span class="soon-status"><i></i>In progress</span>
+                        </article>
+                    </div>
                 </div>
             </div>
         </section>

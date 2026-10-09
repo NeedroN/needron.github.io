@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- ========== Page info ========== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Illustration gallery · Needron</title>
+    <meta name="description" content="Anime-style illustrations by Nordeen (Needron): original characters, fan art and sketches.">
+    <meta property="og:title" content="Illustration gallery · Needron">
+    <meta property="og:description" content="Anime-style illustrations by Nordeen (Needron): original characters, fan art and sketches.">
+    <meta property="og:image" content="https://needron.github.io/assets/img/og-cover.png">
+    <meta name="theme-color" content="#0a0814">
+    <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml">
+
+    <!-- ========== Fonts ========== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- ========== Styles ========== -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script>
+        document.documentElement.classList.add('js');
+        // Preview mode (your own computer, or any page with ?preview): shows draft items and "add file" labels
+        if (/^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || location.search.includes('preview')) {
+            document.documentElement.classList.add('dev');
+        }
+        setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
+    </script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <!-- ========== Navigation ========== -->
+    <header class="nav">
+        <div class="wrap nav-inner">
+            <a class="brand" href="../index.html" aria-label="Needron, home">
+                <img src="../assets/img/logo.svg" alt="" width="32" height="32">Needron
+            </a>
+
+            <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span><span></span><span></span>
+            </button>
+
+            <nav>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../index.html#work" aria-current="page">Work</a></li>
+                    <li><a href="../skills.html">Skills</a></li>
+                    <li><a href="../index.html#journey">About</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main" class="wrap" style="--c: var(--pink)">
+
+        <!-- ========== Title and short intro ========== -->
+        <header class="page-hero">
+            <a class="back" href="../index.html#work">← All work</a>
+            <p class="label" style="color: var(--pink)">Illustration</p>
+            <h1>Illustration gallery</h1>
+            <p class="intro" data-reveal>Anime-style artwork I've drawn: original characters, fan art and sketches. Click any piece to see it full size.</p>
+        </header>
+
+        <!-- ========== Filter: buttons are made automatically from each artwork's data-tag ========== -->
+        <div class="filters" role="group" aria-label="Filter artwork" data-reveal hidden></div>
+
+        <!-- ========== Gallery ==========
+             To add a piece: copy one <figure> block, change the file name in src and data-file,
+             the alt text, the title, the year and data-tag (the tag also becomes a filter button).
+             Files go in assets/img/art/ (.webp, long edge about 2000px).
+             Missing images show as labelled tiles in preview mode and are hidden on the live site. -->
+        <div class="art-grid">
+
+                <figure class="art" data-tag="Original" data-file="art/art-01.webp">
+                    <button class="art-open" type="button">
+                        <img src="../assets/img/art/art-01.webp" alt="Describe this artwork" loading="lazy">
+                    </button>
+                    <figcaption><strong>Artwork title</strong><span>2026 · Original</span></figcaption>
+                </figure>
+
+                <figure class="art" data-tag="Original" data-file="art/art-02.webp">
+                    <button class="art-open" type="button">
+                        <img src="../assets/img/art/art-02.webp" alt="Describe this artwork" loading="lazy">
+                    </button>
+                    <figcaption><strong>Artwork title</strong><span>2026 · Original</span></figcaption>
+                </figure>
+
+                <figure class="art" data-tag="Fan art" data-file="art/art-03.webp">
+                    <button class="art-open" type="button">
+                        <img src="../assets/img/art/art-03.webp" alt="Describe this artwork" loading="lazy">
+                    </button>
+                    <figcaption><strong>Artwork title</strong><span>2026 · Fan art</span></figcaption>
+                </figure>
+
+                <figure class="art" data-tag="Fan art" data-file="art/art-04.webp">
+                    <button class="art-open" type="button">
+                        <img src="../assets/img/art/art-04.webp" alt="Describe this artwork" loading="lazy">
+                    </button>
+                    <figcaption><strong>Artwork title</strong><span>2026 · Fan art</span></figcaption>
+                </figure>
+
+                <figure class="art" data-tag="Sketch" data-file="art/art-05.webp">
+                    <button class="art-open" type="button">
+                        <img src="../assets/img/art/art-05.webp" alt="Describe this artwork" loading="lazy">
+                    </button>
+                    <figcaption><strong>Artwork title</strong><span>2026 · Sketch</span></figcaption>
+                </figure>
+
+                <figure class="art" data-tag="Sketch" data-file="art/art-06.webp">
+                    <button class="art-open" type="button">
+                        <img src="../assets/img/art/art-06.webp" alt="Describe this artwork" loading="lazy">
+                    </button>
+                    <figcaption><strong>Artwork title</strong><span>2026 · Sketch</span></figcaption>
+                </figure>
+
+        </div>
+
+        <p class="art-empty" hidden>New artwork is on its way. Check back soon.</p>
+
+        <!-- ========== Full-size viewer (opens when you click a piece) ========== -->
+        <dialog class="lightbox" aria-label="Artwork viewer">
+            <figure>
+                <img alt="">
+                <figcaption></figcaption>
+            </figure>
+            <button class="lb-btn lb-close" type="button" aria-label="Close">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <button class="lb-btn lb-prev" type="button" aria-label="Previous artwork">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <button class="lb-btn lb-next" type="button" aria-label="Next artwork">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </dialog>
+
+        <!-- ========== Next ========== -->
+        <a class="next" href="himeai.html">
+            <div>
+                <small>Next</small>
+                <strong>HimeAI</strong>
+            </div>
+            <span class="arrow" aria-hidden="true">→</span>
+        </a>
+    </main>
+
+
+    <!-- ========== Footer ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="footer-bottom">
+                <span>© <span data-year>2026</span> Needron · Muhammad Nordeen Syahmi Bin Salfarudeen</span>
+                <a href="../index.html#contact">Contact me</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== Script (loads anime.js v4 itself) ========== -->
+    <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

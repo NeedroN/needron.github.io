@@ -1,7 +1,7 @@
 /* ========== anime.js v4 (loaded from a CDN, nothing to install) ========== */
 import {
     animate, createTimeline, createTimer, createDrawable, createLayout, createScope,
-    onScroll, splitText, stagger, svg, utils, waapi, engine
+    onScroll, splitText, scrambleText, stagger, svg, utils, waapi, engine
 } from 'https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js';
 
 window.__animeReady = true;
@@ -44,7 +44,7 @@ const missingImage = img => {
     img.remove();
     if (preview) return;
 
-    const card = tile.closest('.card');
+    const card = tile.closest('.card:not([data-keep])');
     if (card) {
         card.classList.add('is-soon');
         card.removeAttribute('href');
@@ -65,6 +65,7 @@ const missingImage = img => {
 };
 
 $$('.ph img').forEach(img => {
+    if (img.closest('.art')) return;     // gallery images are handled by the gallery below
     const ok = () => img.parentElement.classList.add('has-img');
     if (img.complete) img.naturalWidth ? ok() : missingImage(img);
     else {
@@ -295,6 +296,34 @@ createScope({
     });
 
 
+    /* ----- "Coming soon" heading: letters unscramble, then a slow wave runs through them ----- */
+    const comingTitle = $('.coming-title');
+    if (comingTitle) {
+        const text = comingTitle.textContent;
+        comingTitle.style.opacity = 0;
+        const intro = createTimeline({ autoplay: false })
+            .set(comingTitle, { opacity: 1 })
+            .add(comingTitle, {
+                innerHTML: scrambleText({ text, chars: 'a-z', cursor: '_' }),
+                duration: 1100
+            })
+            .call(() => {
+                // Once readable, split into letters and keep a gentle wave going
+                const { chars } = splitText(comingTitle, { chars: true });
+                animate(chars, {
+                    y: [0, '-0.18em', 0],
+                    color: ['#eeeaf8', '#ff7ac8', '#eeeaf8'],
+                    duration: 900,
+                    delay: stagger(55),
+                    ease: 'inOutSine',
+                    loop: true,
+                    loopDelay: 2600
+                });
+            });
+        playOnEnter(comingTitle, intro);
+    }
+
+
     /* ----- About timeline: the line fills in as you scroll through it ----- */
     if ($('.timeline-line .draw')) {
         animate(createDrawable('.timeline-line .draw'), {
@@ -313,39 +342,110 @@ createScope({
 });
 
 
-/* ========== Work filter: counts, and cards rearrange smoothly (anime.js layout) ========== */
-const grid = $('.work-grid');
-const filters = $('.filters');
-if (grid && filters) {
-    const chips = $$('.chip[data-filter]', filters);
-    const cards = () => $$('.card', grid);
+/* ========== Illustration gallery: filter, entrance and full-size viewer ========== */
+const artGrid = $('.art-grid');
+if (artGrid) {
+    const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const figures = () => $$('.art', artGrid);
 
-    // Show how many cards each filter has; hide empty filters, or the whole bar if only one type exists
-    chips.forEach(chip => {
-        const n = cards().filter(c => chip.dataset.filter === 'all' || c.dataset.cat === chip.dataset.filter).length;
-        chip.querySelector('small').textContent = n;
-        chip.hidden = n === 0;
+    // Each piece fades up as its image arrives (images stay lazy-loaded).
+    // Missing image: labelled tile in preview, removed on the live site.
+    const filterBar = $('.filters');
+    let order = 0;
+    const appear = fig => {
+        if (reduce()) return fig.style.opacity = 1;
+        waapi.animate(fig, { ...reveal, delay: (order++ % 6) * 70 });
+    };
+    const missing = fig => {
+        if (preview) {
+            fig.classList.add('is-missing');
+            $('.art-open', fig).dataset.file = fig.dataset.file;
+            $('img', fig).remove();
+            return appear(fig);
+        }
+        fig.remove();
+        if (!figures().length) $('.art-empty').hidden = false;
+        buildFilters();
+    };
+    figures().forEach(fig => {
+        const img = $('img', fig);
+        if (img.complete) return img.naturalWidth ? appear(fig) : missing(fig);
+        img.addEventListener('load', () => appear(fig), { once: true });
+        img.addEventListener('error', () => missing(fig), { once: true });
     });
-    if (chips.filter(c => !c.hidden && c.dataset.filter !== 'all').length < 2) filters.hidden = true;
 
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const layout = createLayout(grid, {
-        children: '.card',
-        duration: reduce ? 0 : 500,
+    // Filter buttons from the tags in use; only shown when there are at least two tags
+    const layout = filterBar && createLayout(artGrid, {
+        children: '.art',
+        duration: reduce() ? 0 : 500,
         ease: 'inOutQuart',
         enterFrom: { opacity: 0 },
         leaveTo: { opacity: 0 }
     });
+    function buildFilters() {
+        if (!filterBar) return;
+        const all = figures();
+        const tags = [...new Set(all.map(f => f.dataset.tag).filter(Boolean))];
+        const active = $('[aria-pressed="true"]', filterBar)?.dataset.filter || 'all';
+        filterBar.hidden = tags.length < 2;
+        filterBar.innerHTML = ['all', ...tags].map(t => {
+            const n = t === 'all' ? all.length : all.filter(f => f.dataset.tag === t).length;
+            return `<button class="chip" type="button" data-filter="${t}" aria-pressed="${t === active}">${t === 'all' ? 'All' : t} <small>${n}</small></button>`;
+        }).join('');
+    }
+    buildFilters();
+    filterBar?.addEventListener('click', e => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        $$('.chip', filterBar).forEach(c => c.setAttribute('aria-pressed', c === chip));
+        layout.update(() => figures().forEach(f => {
+            f.classList.toggle('is-hidden', chip.dataset.filter !== 'all' && f.dataset.tag !== chip.dataset.filter);
+        }));
+    });
 
-    chips.forEach(chip => chip.addEventListener('click', () => {
-        const filter = chip.dataset.filter;
-        chips.forEach(c => c.setAttribute('aria-pressed', c === chip));
-        layout.update(() => {
-            cards().forEach(card => {
-                card.classList.toggle('is-hidden', filter !== 'all' && card.dataset.cat !== filter);
-            });
-        });
-    }));
+    // Full-size viewer
+    const lb = $('.lightbox');
+    const lbImg = $('img', lb);
+    const lbCap = $('figcaption', lb);
+    let list = [], index = 0;
+
+    const show = (i, dir = 0) => {
+        index = (i + list.length) % list.length;
+        const fig = list[index];
+        lbImg.src = $('img', fig).src;
+        lbImg.alt = $('img', fig).alt;
+        lbCap.textContent = [...$('figcaption', fig).children].map(el => el.textContent).join(' · ');
+        if (!reduce()) waapi.animate(lbImg, { opacity: [0, 1], x: [dir * 32, 0], scale: dir ? 1 : [.94, 1], duration: 450, ease });
+    };
+
+    const open = fig => {
+        list = figures().filter(f => !f.classList.contains('is-hidden') && !f.classList.contains('is-missing'));
+        if (!list.includes(fig)) return;
+        $$('.lb-prev, .lb-next', lb).forEach(btn => btn.hidden = list.length < 2);
+        lb.showModal();
+        if (!reduce()) waapi.animate(lb, { opacity: [0, 1], duration: 250, ease: 'linear' });
+        show(list.indexOf(fig));
+    };
+
+    const close = () => {
+        if (reduce()) return lb.close();
+        waapi.animate(lb, { opacity: [1, 0], duration: 200, ease: 'linear' }).then(() => lb.close());
+    };
+
+    artGrid.addEventListener('click', e => {
+        const btn = e.target.closest('.art-open');
+        if (btn) open(btn.closest('.art'));
+    });
+    $('.lb-close', lb).addEventListener('click', close);
+    $('.lb-prev', lb).addEventListener('click', () => show(index - 1, -1));
+    $('.lb-next', lb).addEventListener('click', () => show(index + 1, 1));
+    lb.addEventListener('cancel', e => { e.preventDefault(); close(); });             // Esc key
+    lb.addEventListener('click', e => { if (e.target === lb || e.target.tagName === 'FIGURE') close(); });
+    lb.addEventListener('keydown', e => {
+        if (list.length < 2) return;
+        if (e.key === 'ArrowLeft') show(index - 1, -1);
+        if (e.key === 'ArrowRight') show(index + 1, 1);
+    });
 }
 
 

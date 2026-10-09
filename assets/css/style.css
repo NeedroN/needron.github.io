@@ -815,6 +815,257 @@ a.card:hover {
 }
 
 
+/* ========== Coming soon (sub-section under Work) ========== */
+.coming {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+}
+
+.coming-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.coming-head p {
+    color: var(--text-dim);
+}
+
+/* The heading's letters are animated by main.js (anime.js text tools) */
+.coming-title {
+    font-size: var(--fs-h3);
+    white-space: nowrap;
+}
+
+.coming-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+.soon-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: var(--space-3);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r);
+}
+
+.soon-card .card-cat {
+    font: 500 .74rem var(--font-mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--c, var(--violet));
+}
+
+.soon-card h4 {
+    font-size: var(--fs-h4);
+}
+
+.soon-card p {
+    color: var(--text-soft);
+    font-size: .975rem;
+}
+
+.soon-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 8px;
+    color: var(--text-dim);
+    font: 500 .8rem var(--font-mono);
+}
+
+.soon-status i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--c, var(--violet));
+}
+
+@media (max-width: 860px) {
+    .coming-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ========== Illustration gallery ========== */
+/* Masonry: pieces keep their own shape and stack in columns */
+.art-grid {
+    columns: 3 280px;
+    column-gap: var(--space-2);
+    padding-top: var(--space-4);
+}
+
+.art {
+    break-inside: avoid;
+    margin: 0 0 var(--space-3);
+}
+
+.art.is-hidden {
+    display: none;
+}
+
+.art-open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    overflow: hidden;
+    background: var(--bg-soft);
+    cursor: zoom-in;
+    transition: border-color .2s;
+}
+
+.art-open:hover {
+    border-color: var(--pink);
+}
+
+.art-open img {
+    width: 100%;
+    height: auto;
+}
+
+.art figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    font-size: .92rem;
+}
+
+.art figcaption span {
+    color: var(--text-dim);
+    font: 500 .78rem var(--font-mono);
+}
+
+/* Preview mode: a missing image shows as a labelled tile */
+.art.is-missing .art-open {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    background:
+        radial-gradient(circle at 25% 20%, rgba(255, 122, 200, .32), transparent 55%),
+        radial-gradient(circle at 80% 85%, rgba(123, 77, 255, .5), transparent 60%),
+        var(--bg-soft);
+    cursor: default;
+}
+
+.art.is-missing .art-open::after {
+    content: "add " attr(data-file);
+    position: absolute;
+    left: 12px;
+    bottom: 10px;
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    background: rgba(10, 8, 20, .55);
+    color: rgba(238, 234, 248, .7);
+    font: 400 .68rem var(--font-mono);
+}
+
+.art-empty {
+    padding: var(--space-5) 0;
+    color: var(--text-soft);
+    text-align: center;
+}
+
+/* Full-size viewer */
+.lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: var(--space-5) var(--space-6);
+    border: 0;
+    background: rgba(10, 8, 20, .94);
+    color: var(--text);
+}
+
+.lightbox::backdrop {
+    background: transparent;
+}
+
+.lightbox figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 100%;
+    margin: 0;
+}
+
+.lightbox img {
+    max-width: 100%;
+    max-height: calc(100% - 48px);
+    width: auto;
+    height: auto;
+    border-radius: var(--r-sm);
+}
+
+.lightbox figcaption {
+    color: var(--text-soft);
+    font-size: .95rem;
+}
+
+.lb-btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: var(--bg-raised);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color .2s;
+}
+
+.lb-btn:hover {
+    border-color: var(--pink);
+}
+
+.lb-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.lb-close { top: var(--space-3); right: var(--space-3); }
+.lb-prev { left: var(--space-3); top: 50%; margin-top: -24px; }
+.lb-next { right: var(--space-3); top: 50%; margin-top: -24px; }
+
+@media (max-width: 760px) {
+    .lightbox {
+        padding: 80px var(--space-2) 96px;
+    }
+
+    .lb-prev,
+    .lb-next {
+        top: auto;
+        bottom: var(--space-3);
+        margin-top: 0;
+    }
+
+    .lb-prev { left: calc(50% - 56px); }
+    .lb-next { right: calc(50% - 56px); }
+}
+
+
 /* ========== Image placeholders (shown until the real image exists) ========== */
 .ph {
     position: relative;
@@ -1624,6 +1875,10 @@ a.card:hover {
     opacity: 0;
 }
 
+.js .art {
+    opacity: 0;
+}
+
 .js .hero-title {
     visibility: hidden;
 }
@@ -1637,6 +1892,7 @@ a.card:hover {
     .js [data-reveal],
     .js [data-stagger] > *,
     .js .hero [data-hero],
+    .js .art,
     .js .scroll-cue > * {
         opacity: 1;
     }
