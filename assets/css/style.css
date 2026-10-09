@@ -1861,6 +1861,93 @@ a.card:hover {
 }
 
 
+/* ==========================================================================
+   404 page
+   ========================================================================== */
+.lost {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 100svh;
+    padding: var(--space-6) var(--space-3);
+    text-align: center;
+    overflow: hidden;
+}
+
+.lost h1 {
+    font-size: var(--fs-h2);
+}
+
+.lost-text {
+    margin-bottom: var(--space-2);
+    color: var(--text-soft);
+}
+
+.lost-stage {
+    display: grid;
+    place-items: center;
+    height: 200px;
+    margin-bottom: var(--space-2);
+}
+
+.lost-logo {
+    position: relative;
+    z-index: 2;
+    touch-action: none;
+    user-select: none;
+}
+
+.lost-logo img {
+    display: block;
+    width: 160px;
+    height: 160px;
+}
+
+/* Speech bubble that appears after you've chased the logo 10 times */
+.lost-bubble {
+    position: absolute;
+    bottom: calc(100% + 14px);
+    left: 0;                     /* set by the script so the bubble stays on screen */
+    width: max-content;
+    max-width: 240px;
+    padding: 10px 16px;
+    border: 1px solid var(--pink);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+    color: var(--text);
+    font: 600 1rem var(--font-display);
+    transform-origin: var(--tail, 50%) 100%;
+}
+
+.lost-bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: var(--tail, 50%);
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border: solid var(--pink);
+    border-width: 0 1px 1px 0;
+    background: var(--bg-raised);
+    transform: rotate(45deg);
+}
+
+/* Logo near the top edge: the bubble goes underneath instead */
+.lost-bubble.below {
+    top: calc(100% + 14px);
+    bottom: auto;
+    transform-origin: var(--tail, 50%) 0;
+}
+
+.lost-bubble.below::after {
+    top: 0;
+    border-width: 1px 0 0 1px;
+}
+
+
 /* ========== Animation start states (only while JavaScript animations are active) ========== */
 .js [data-reveal],
 .js [data-stagger] > * {

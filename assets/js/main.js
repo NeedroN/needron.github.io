@@ -386,6 +386,84 @@ $$('.soon-card').forEach(card => {
 });
 
 
+/* ========== 404 page: the logo runs away from your cursor ========== */
+const lostLogo = $('.lost-logo');
+if (lostLogo) {
+    const img = $('img', lostLogo);
+    const bubble = $('.lost-bubble', lostLogo);
+    const still = calm.matches;
+    let px = 0, py = 0, dodges = 0, resting = false, bubbleTimer;
+
+    // Gentle idle float on the picture (the wrapper is the part that dodges)
+    if (!still) animate(img, { y: [-6, 6], duration: 1800, ease: 'inOutSine', loop: true, alternate: true });
+
+    // Centre the bubble over the logo, but keep it inside the screen; the tail still points at the logo
+    const placeBubble = () => {
+        if (bubble.hidden) return;
+        const box = lostLogo.getBoundingClientRect();
+        bubble.classList.toggle('below', box.top < 90);
+        const left = utils.clamp((box.width - bubble.offsetWidth) / 2, 12 - box.left, innerWidth - 12 - bubble.offsetWidth - box.left);
+        bubble.style.left = `${left}px`;
+        bubble.style.setProperty('--tail', `${box.width / 2 - left}px`);
+    };
+
+    const say = () => {
+        clearTimeout(bubbleTimer);
+        bubble.hidden = false;
+        placeBubble();
+        animate(bubble, { scale: [0, 1], opacity: [0, 1], duration: 700, ease: 'outElastic(1, .6)' });
+        animate(img, { rotate: [0, -12, 12, -8, 8, 0], duration: 600, ease: 'inOutSine' });
+        bubbleTimer = setTimeout(() => {
+            animate(bubble, { scale: 0, opacity: 0, duration: 250, ease: 'inQuad' }).then(() => bubble.hidden = true);
+        }, 2600);
+    };
+
+    const dodge = (cx, cy) => {
+        const box = lostLogo.getBoundingClientRect();
+        const dx = box.left + box.width / 2 - cx;
+        const dy = box.top + box.height / 2 - cy;
+        const len = Math.hypot(dx, dy) || 1;
+        const dist = utils.random(150, 260);
+
+        // Where the logo sits with no offset, and how far it may move while staying on screen
+        const homeX = box.left - px, homeY = box.top - py, pad = 16;
+        const clampX = v => utils.clamp(v, pad - homeX, innerWidth - pad - box.width - homeX);
+        const clampY = v => utils.clamp(v, pad - homeY, innerHeight - pad - box.height - homeY);
+        let nx = clampX(px + dx / len * dist);
+        let ny = clampY(py + dy / len * dist);
+
+        // Cornered against an edge: jump to a random free spot instead
+        if (Math.hypot(homeX + nx + box.width / 2 - cx, homeY + ny + box.height / 2 - cy) < box.width) {
+            nx = clampX(utils.random(-homeX, innerWidth - homeX - box.width));
+            ny = clampY(utils.random(-homeY, innerHeight - homeY - box.height));
+        }
+        px = nx; py = ny;
+        animate(lostLogo, {
+            x: px, y: py,
+            rotate: [utils.random(-20, 20), 0],
+            duration: still ? 0 : 650,
+            ease: 'outBack(1.6)'
+        }).then(placeBubble);
+
+        if (++dodges % 10 === 0) say();
+    };
+
+    // The logo counts as touched when the pointer gets inside its circle
+    const near = e => {
+        if (resting) return;
+        const box = lostLogo.getBoundingClientRect();
+        const r = box.width / 2;
+        if (Math.hypot(box.left + r - e.clientX, box.top + r - e.clientY) > r) return;
+        resting = true;
+        setTimeout(() => resting = false, 220);
+        dodge(e.clientX, e.clientY);
+    };
+    document.addEventListener('pointermove', near);
+    document.addEventListener('pointerdown', near);
+    addEventListener('resize', () => { px = py = 0; animate(lostLogo, { x: 0, y: 0, duration: 0 }); });
+}
+
+
 /* ========== Illustration gallery: filter, entrance and full-size viewer ========== */
 const artGrid = $('.art-grid');
 if (artGrid) {
