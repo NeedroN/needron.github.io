@@ -1240,7 +1240,7 @@ a.card:hover .card-media img {
 
 .meta {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     margin-top: var(--space-4);
     border-top: 1px solid var(--line);
 }
@@ -1259,6 +1259,13 @@ a.card:hover .card-media img {
 .meta dd {
     margin: 4px 0 0;
     font-weight: 500;
+}
+
+/* Credit links inside the facts row */
+.meta dd a {
+    color: var(--pink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .cover {

@@ -5,117 +5,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HimeAI · Needron</title>
-    <meta name="description" content="A local desktop AI companion that understands speech, remembers conversations, controls the computer, and helps with everyday tasks, personified by the HimeAI VTuber mascot.">
-    <meta name="theme-color" content="#09070f">
+    <meta name="description" content="A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.">
+    <meta property="og:title" content="HimeAI · Needron">
+    <meta property="og:description" content="A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.">
+    <meta property="og:image" content="../assets/img/og-cover.png">
+    <meta name="theme-color" content="#0a0814">
     <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml">
 
     <!-- ========== Fonts ========== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- ========== Styles ========== -->
     <link rel="stylesheet" href="../assets/css/style.css">
-    <script>document.documentElement.classList.add('js')</script>
+    <script>
+        document.documentElement.classList.add('js');
+        setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
+    </script>
 </head>
 
 <body>
-    <!-- Starfield background -->
+    <a class="skip-link" href="#main">Skip to content</a>
     <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="progress" aria-hidden="true"></div>
 
-    <!-- ========== Navigation bar ========== -->
+    <!-- ========== Navigation ========== -->
     <header class="nav">
-        <div class="wrap">
-            <a class="logo" href="../index.html"><img src="../assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
-            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+        <div class="wrap nav-inner">
+            <a class="brand" href="../index.html" aria-label="Needron, home">
+                <img src="../assets/img/logo.svg" alt="" width="32" height="32">Needron
+            </a>
+
+            <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
                 <span></span><span></span><span></span>
             </button>
-            <ul class="nav-links" id="nav-links">
-                <li><a href="../index.html#about">About</a></li>
-                <li><a href="../index.html#projects">Projects</a></li>
-                <li><a href="../skills.html">Skills</a></li>
-                <li><a href="../index.html#contact">Contact</a></li>
-            </ul>
+
+            <nav>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../index.html#work" aria-current="page">Work</a></li>
+                    <li><a href="../skills.html">Skills</a></li>
+                    <li><a href="../index.html#journey">About</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
-    <main class="wrap">
-        <!-- ========== Project header: title, tagline and quick facts ========== -->
-        <header class="page-head">
-            <a class="back" href="../index.html#cs">← All projects</a>
-            <p class="eyebrow">Computer Science</p>
-            <h1 class="reveal">HimeAI</h1>
-            <p class="lead reveal">A local desktop AI companion that understands speech, remembers conversations, controls the computer, and helps with everyday tasks, personified by the HimeAI VTuber mascot.</p>
-            <div class="meta reveal" data-stagger>
-                <div class="fact"><small>Role</small><span>Solo developer</span></div>
-                <div class="fact"><small>Year</small><span>2026</span></div>
-                <div class="fact"><small>Stack</small><span>Python · FastAPI · PyTorch</span></div>
-                <div class="fact"><small>Status</small><span>In development</span></div>
-            </div>
+    <main id="main" class="wrap" style="--c: var(--sky)">
+
+        <!-- ========== Title, one-line summary and quick facts ========== -->
+        <header class="page-hero">
+            <a class="back" href="../index.html#work">← All work</a>
+            <p class="label" style="color: var(--sky)">Computer Science · Featured</p>
+            <h1>HimeAI</h1>
+            <p class="intro" data-reveal>A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.</p>
+            <dl class="meta" data-stagger>
+                    <div><dt>Role</dt><dd>Solo developer</dd></div>
+                    <div><dt>Year</dt><dd>2026</dd></div>
+                    <div><dt>Stack</dt><dd>Python · FastAPI · PyTorch</dd></div>
+                    <div><dt>Status</dt><dd>In development</dd></div>
+                    <div><dt>Avatar</dt><dd>Live2D model by <a href="https://booth.pm/en/items/6499774" target="_blank" rel="noopener">Snow Bear Project</a></dd></div>
+            </dl>
         </header>
 
-        <!-- ========== Cover image (1920×1080) ========== -->
-        <div class="cover ph reveal" data-label="projects/himeai-cover.webp · 1920×1080">
+        <!-- ========== Cover image: add assets/img/projects/himeai-cover.webp ========== -->
+        <div class="cover ph" data-file="projects/himeai-cover.webp">
             <img src="../assets/img/projects/himeai-cover.webp" alt="HimeAI cover">
         </div>
 
-        <!-- ========== Overview and description ========== -->
-        <article class="prose">
-            <section class="reveal">
-                <h2>Overview</h2>
-                <p>HimeAI is a personal assistant that runs locally on my own PC. A FastAPI backend serves a web chat interface over REST and WebSocket, and Hime replies with text, expressions and gestures that drive her avatar.</p>
-            </section>
-            <section class="reveal">
-                <h2>Description</h2>
-                <p>I am building my own small Transformer language model from scratch as a learning project, trained on TinyStories and fine-tuned for chat, alongside selectable Ollama models for everyday use.</p>
-                <ul>
-                    <li>Own Transformer LLM: tokenizer, attention, training loop and inference written by hand</li>
-                    <li>Ollama model option with personality presets</li>
-                    <li>Emotion and gesture tags that animate the avatar</li>
-                    <li>Allow-listed PC control with an emergency stop</li>
-                    <li>Planned: Japanese and English voice, speech input, long-term memory</li>
-                </ul>
-            </section>
-            <section class="reveal">
-                <h2>What I learned</h2>
-                <p>Placeholder: a short paragraph about the hardest problem you solved and what you would do differently.</p>
-            </section>
-        </article>
+        <!-- ========== Story: contents list on the left, text on the right ========== -->
+        <div class="content">
+            <nav class="toc" aria-label="On this page">
+                <a href="#overview">Overview</a>
+                <a href="#built">What I built</a>
+                <a href="#learned">What I learned</a>
+                <a href="#next">What's next</a>
+                <a href="#gallery">Gallery</a>
+            </nav>
 
-        <!-- ========== Gallery ========== -->
-        <section class="reveal">
-            <h2 class="section-title" style="font-size:1.5rem;margin-top:56px">Gallery</h2>
-            <div class="gallery">
-                <div class="ph" data-label="projects/himeai-01.webp · 1600×1000"><img src="../assets/img/projects/himeai-01.webp" alt="HimeAI chat interface" loading="lazy"></div>
-                <div class="ph" data-label="projects/himeai-02.webp · 1600×1000"><img src="../assets/img/projects/himeai-02.webp" alt="HimeAI avatar expressions" loading="lazy"></div>
-                <div class="ph" data-label="projects/himeai-03.webp · 1600×1000"><img src="../assets/img/projects/himeai-03.webp" alt="HimeAI training run" loading="lazy"></div>
-            </div>
-        </section>
+            <article class="prose">
+                <!-- ----- Overview ----- -->
+                <section id="overview" data-reveal>
+                    <h2>Overview</h2>
+                    <p>HimeAI is a personal assistant that lives on my own computer. You chat with Hime in a web window, and she answers with text, expressions and gestures that move her avatar. Nothing is sent to the cloud.</p>
+                    <p>I started it to learn how language models really work, so I am also building my own small model from scratch alongside ready-made local models.</p>
+                </section>
 
-        <!-- ========== Links ========== -->
-        <div class="hero-cta reveal" style="margin-top:40px">
-            <a class="btn btn-primary" href="https://github.com/your-username/HimeAI" target="_blank" rel="noopener">View on GitHub</a>
-            <a class="btn" href="#" target="_blank" rel="noopener">Watch demo</a>
+                <!-- ----- What I built ----- -->
+                <section id="built" data-reveal>
+                    <h2>What I built</h2>
+                    <ol class="numbered">
+                        <li>
+                            <h3>A FastAPI backend</h3>
+                            <p>REST and WebSocket endpoints, a settings file, an emergency stop and an allow-list for anything that touches the PC.</p>
+                        </li>
+                        <li>
+                            <h3>My own Transformer language model</h3>
+                            <p>Tokenizer, attention, training loop and text generation written by hand, trained on TinyStories, then fine-tuned for chat with a persona.</p>
+                        </li>
+                        <li>
+                            <h3>Local Ollama models</h3>
+                            <p>Switch to a stronger local model from the chat window, with personality presets on top.</p>
+                        </li>
+                        <li>
+                            <h3>Emotions for the avatar</h3>
+                            <p>The model tags its replies with expressions and gestures, which drive Hime's face and pose.</p>
+                        </li>
+                    </ol>
+                </section>
+
+                <!-- ----- What I learned ----- -->
+                <section id="learned" data-reveal>
+                    <h2>What I learned</h2>
+                    <p>Placeholder: two or three sentences about the hardest problem you solved, such as fitting a model into 6 GB of VRAM, and what you would do differently.</p>
+                </section>
+
+                <!-- ----- What's next ----- -->
+                <section id="next" data-reveal>
+                    <h2>What's next</h2>
+                    <p>Japanese and English voice output, speech input, long-term memory, and new skills with security hardening.</p>
+                </section>
+
+                <!-- ----- Gallery ----- -->
+                <section id="gallery" data-reveal>
+                    <h2>Gallery</h2>
+                    <div class="gallery">
+                        <div class="ph" data-file="projects/himeai-01.webp"><img src="../assets/img/projects/himeai-01.webp" alt="HimeAI chat window" loading="lazy"></div>
+                        <div class="ph" data-file="projects/himeai-02.webp"><img src="../assets/img/projects/himeai-02.webp" alt="Hime avatar expressions" loading="lazy"></div>
+                        <div class="ph" data-file="projects/himeai-03.webp"><img src="../assets/img/projects/himeai-03.webp" alt="Training the model" loading="lazy"></div>
+                    </div>
+                </section>
+
+                <div class="page-links" data-reveal>
+                    <a class="btn btn-primary" href="https://github.com/NeedroN" target="_blank" rel="noopener">View code on GitHub</a>
+                    <a class="btn" href="#" target="_blank" rel="noopener">Watch the demo</a>
+                </div>
+            </article>
         </div>
 
-        <!-- ========== Previous / next project ========== -->
-        <nav class="pager" aria-label="More projects">
-            <a href="template.html"><small>Next</small>Project Two</a>
-        </nav>
+        <!-- ========== Next project ========== -->
+        <a class="next" href="art-01.html">
+            <div>
+                <small>Next</small>
+                <strong>Original character illustration</strong>
+            </div>
+            <span class="arrow" aria-hidden="true">→</span>
+        </a>
     </main>
 
     <!-- ========== Footer ========== -->
     <footer class="footer">
         <div class="wrap">
             <div class="footer-bottom">
-                <span>© <span data-year>2026</span> Muhammad Nordeen Syahmi Bin Salfarudeen · Needron</span>
-                <a href="../index.html#contact">Contact</a>
+                <span>© <span data-year>2026</span> Needron · Muhammad Nordeen Syahmi Bin Salfarudeen</span>
+                <a href="../index.html#contact">Contact me</a>
             </div>
         </div>
     </footer>
 
-    <!-- ========== Scripts ========== -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
-    <script src="../assets/js/main.js" defer></script>
+    <!-- ========== Script (loads anime.js v4 itself) ========== -->
+    <script type="module" src="../assets/js/main.js"></script>
 </body>
 </html>
