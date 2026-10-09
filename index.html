@@ -8,7 +8,7 @@
     <meta name="description" content="Portfolio of Muhammad Nordeen Syahmi Bin Salfarudeen (Needron): Computer Science (Multimedia Computing) student at UTHM who writes software and draws anime-style illustrations.">
     <meta property="og:title" content="Needron · Nordeen, programmer & illustrator">
     <meta property="og:description" content="I write code and draw anime-style illustrations.">
-    <meta property="og:image" content="assets/img/og-cover.png">
+    <meta property="og:image" content="https://needron.github.io/assets/img/og-cover.png">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#0a0814">
     <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
@@ -16,7 +16,7 @@
     <!-- ========== Fonts: Bricolage Grotesque (headings), Plus Jakarta Sans (text), JetBrains Mono (labels) ========== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- ========== Styles ========== -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -24,6 +24,10 @@
     <!-- Hide animated elements until anime.js is ready; show them anyway if it fails to load -->
     <script>
         document.documentElement.classList.add('js');
+        // Preview mode (your own computer, or any page with ?preview): shows draft items and "add file" labels
+        if (/^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || location.search.includes('preview')) {
+            document.documentElement.classList.add('dev');
+        }
         setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
     </script>
 </head>
@@ -31,7 +35,6 @@
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <canvas id="stars" aria-hidden="true"></canvas>
-    <div class="progress" aria-hidden="true"></div>
 
     <!-- ========== Navigation ========== -->
     <header class="nav">
@@ -59,11 +62,11 @@
 
         <!-- ========== Hero: who I am and what I do, in one glance ========== -->
         <section class="hero" id="top">
-            <div class="cursor-glow" aria-hidden="true"></div>
 
             <div class="wrap hero-grid">
                 <div>
-                    <p class="status" data-hero><i></i>Open to internships &amp; commissions</p>
+                    <!-- Availability line: edit or delete -->
+                    <p class="label" data-hero>Open to internships &amp; commissions</p>
 
                     <h1 class="hero-title">I write <span class="accent">code</span> and draw anime-style illustrations.</h1>
 
@@ -72,10 +75,10 @@
                         <strong>Universiti Tun Hussein Onn Malaysia</strong> and an anime-style illustrator.
                     </p>
 
-                    <!-- "Currently" line: edit the phrases in data-phrases, separated by | -->
+                    <!-- "Currently" line: edit to what you're working on -->
                     <p class="now" data-hero>
                         <span>Currently</span>
-                        <b id="now-text" data-phrases="training my own language model|giving Hime a voice|working on new illustrations">training my own language model</b>
+                        <b>training my own language model</b>
                     </p>
 
                     <div class="hero-cta" data-hero>
@@ -114,17 +117,16 @@
                 </div>
             </div>
 
-            <div class="scroll-cue" aria-hidden="true">Scroll<span></span></div>
         </section>
 
 
-        <!-- ========== In 30 seconds: the three things I do ========== -->
+        <!-- ========== What I do: three areas ========== -->
         <section class="section" id="overview">
             <div class="wrap">
                 <div class="section-head">
-                    <p class="label">In 30 seconds</p>
-                    <h2 class="title" data-split>Three skills, one goal: characters that feel alive.</h2>
-                    <p class="intro" data-reveal>I write the code that makes them think, design how they look and move, and draw them myself.</p>
+                    <p class="label">What I do</p>
+                    <h2 class="title" data-reveal>Code, multimedia and illustration.</h2>
+                    <p class="intro" data-reveal>Multimedia computing covers a lot, from programming to interface design and animation. These are the three areas I spend my time on.</p>
                 </div>
 
                 <div class="pillars" data-stagger>
@@ -150,7 +152,7 @@
                         </svg>
                         <span class="kicker">02 / Design</span>
                         <h3>Multimedia &amp; UI</h3>
-                        <p>Interfaces, motion and interactive web experiences. This site is one of them.</p>
+                        <p>Interfaces, motion and interactive web pages. I designed and built this site.</p>
                     </article>
 
                     <!-- Pillar 3: Draw -->
@@ -163,27 +165,11 @@
                         </svg>
                         <span class="kicker">03 / Draw</span>
                         <h3>Anime illustration</h3>
-                        <p>Original characters, character illustrations and fan art in an anime style.</p>
+                        <p>Original characters and fan art in an anime style, drawn digitally.</p>
                     </article>
-                </div>
-
-                <!-- Quick numbers: edit data-count to change each number -->
-                <div class="stats" data-stagger>
-                    <div class="stat"><strong data-count="1">1</strong><span>major project in development</span></div>
-                    <div class="stat"><strong data-count="20" data-suffix="+">20+</strong><span>illustrations drawn</span></div>
-                    <div class="stat"><strong data-count="3" data-suffix="">3</strong><span>years of coding</span></div>
                 </div>
             </div>
         </section>
-
-
-        <!-- ========== Word band that slides as you scroll ========== -->
-        <div class="band" aria-hidden="true">
-            <div class="band-track">
-                <span>Build</span><span>✦</span><span>Design</span><span>✦</span><span>Draw</span><span>✦</span>
-                <span>Build</span><span>✦</span><span>Design</span><span>✦</span><span>Draw</span><span>✦</span>
-            </div>
-        </div>
 
 
         <!-- ========== Selected work ========== -->
@@ -191,15 +177,15 @@
             <div class="wrap">
                 <div class="section-head">
                     <p class="label">Selected work</p>
-                    <h2 class="title" data-split>Things I've built and drawn.</h2>
-                    <p class="intro" data-reveal>Filter by type, then open any card for the full story.</p>
+                    <h2 class="title" data-reveal>Projects and artwork.</h2>
+                    <p class="intro" data-reveal>Open any card for the full story.</p>
                 </div>
 
                 <!-- Filter chips: data-filter matches each card's data-cat -->
                 <div class="filters" role="group" aria-label="Filter projects" data-reveal>
-                    <button class="chip" data-filter="all" aria-pressed="true">All <small>5</small></button>
-                    <button class="chip" data-filter="cs" aria-pressed="false">Computer Science <small>2</small></button>
-                    <button class="chip" data-filter="art" aria-pressed="false">Illustration <small>3</small></button>
+                    <button class="chip" data-filter="all" aria-pressed="true">All <small></small></button>
+                    <button class="chip" data-filter="cs" aria-pressed="false">Computer Science <small></small></button>
+                    <button class="chip" data-filter="art" aria-pressed="false">Illustration <small></small></button>
                 </div>
 
                 <div class="work-grid" data-stagger>
@@ -223,8 +209,8 @@
                         </div>
                     </a>
 
-                    <!-- Illustration 1 -->
-                    <a class="card" data-cat="art" href="projects/art-01.html" style="--c: var(--pink)">
+                    <!-- Illustration 1 (draft: hidden on the live site until you delete data-draft) -->
+                    <a data-draft class="card" data-cat="art" href="projects/art-01.html" style="--c: var(--pink)">
                         <div class="card-media ph" data-file="art/art-01-thumb.webp">
                             <img src="assets/img/art/art-01-thumb.webp" alt="Original character illustration" loading="lazy">
                         </div>
@@ -236,8 +222,8 @@
                         </div>
                     </a>
 
-                    <!-- Project 2 (placeholder) -->
-                    <a class="card" data-cat="cs" href="projects/template.html" style="--c: var(--sky)">
+                    <!-- Project 2 (draft: hidden on the live site until you delete data-draft) -->
+                    <a data-draft class="card" data-cat="cs" href="projects/template.html" style="--c: var(--sky)">
                         <div class="card-media ph" data-file="projects/project-02-thumb.webp">
                             <img src="assets/img/projects/project-02-thumb.webp" alt="Project two preview" loading="lazy">
                         </div>
@@ -249,8 +235,8 @@
                         </div>
                     </a>
 
-                    <!-- Illustration 2 (placeholder) -->
-                    <a class="card" data-cat="art" href="projects/template.html" style="--c: var(--pink)">
+                    <!-- Illustration 2 (draft: hidden on the live site until you delete data-draft) -->
+                    <a data-draft class="card" data-cat="art" href="projects/template.html" style="--c: var(--pink)">
                         <div class="card-media ph" data-file="art/art-02-thumb.webp">
                             <img src="assets/img/art/art-02-thumb.webp" alt="Illustration two" loading="lazy">
                         </div>
@@ -262,8 +248,8 @@
                         </div>
                     </a>
 
-                    <!-- Illustration 3 (placeholder) -->
-                    <a class="card" data-cat="art" href="projects/template.html" style="--c: var(--pink)">
+                    <!-- Illustration 3 (draft: hidden on the live site until you delete data-draft) -->
+                    <a data-draft class="card" data-cat="art" href="projects/template.html" style="--c: var(--pink)">
                         <div class="card-media ph" data-file="art/art-03-thumb.webp">
                             <img src="assets/img/art/art-03-thumb.webp" alt="Illustration three" loading="lazy">
                         </div>
@@ -285,7 +271,7 @@
             <div class="wrap">
                 <div class="section-head">
                     <p class="label">Skills</p>
-                    <h2 class="title" data-split>What I work with.</h2>
+                    <h2 class="title" data-reveal>What I work with.</h2>
                     <p class="intro" data-reveal>The tools I use most, grouped by what I use them for.</p>
                 </div>
 
@@ -318,12 +304,12 @@
             <div class="wrap journey">
                 <div class="section-head">
                     <p class="label">About</p>
-                    <h2 class="title" data-split>From drawing characters to building them.</h2>
+                    <h2 class="title" data-reveal>About me</h2>
                     <!-- Short bio: replace with your own words -->
-                    <p class="intro" data-reveal>I started out drawing anime characters, then got curious about making them talk. Now I study multimedia computing and build the AI and the art together.</p>
+                    <p class="intro" data-reveal>I study Computer Science (Multimedia Computing) at UTHM and have been drawing anime-style art for years. Most of my coding time right now goes into HimeAI, which I'm building to learn how language models work.</p>
                 </div>
 
-                <!-- Timeline: replace the years marked 20XX with your own -->
+                <!-- Timeline: replace 20XX with the real years, then delete data-draft so they show on the live site -->
                 <ol class="timeline">
                     <svg class="timeline-line" aria-hidden="true" preserveAspectRatio="none">
                         <defs>
@@ -337,12 +323,12 @@
                     </svg>
 
                     <li class="step" data-reveal>
-                        <time>20XX</time>
+                        <time data-draft>20XX</time>
                         <h3>Started drawing anime characters</h3>
                         <p>Original characters and fan art, first on paper and then digital.</p>
                     </li>
                     <li class="step" data-reveal>
-                        <time>20XX</time>
+                        <time data-draft>20XX</time>
                         <h3>B.Sc. Computer Science (Multimedia Computing), UTHM</h3>
                         <p>Programming, multimedia systems, UI/UX and interactive media.</p>
                     </li>
@@ -366,8 +352,8 @@
             <div class="wrap">
                 <div class="contact" data-reveal>
                     <p class="label">Contact</p>
-                    <h2 class="title" data-split>Let's build or draw something together.</h2>
-                    <p class="intro">Open to internships, collaborations and illustration commissions. Email is the fastest way to reach me.</p>
+                    <h2 class="title" data-reveal>Get in touch</h2>
+                    <p class="intro">For internships, collaborations or illustration commissions, email is the best way to reach me.</p>
 
                     <!-- Email: change data-email and the mailto link -->
                     <div class="contact-actions">
@@ -378,12 +364,12 @@
                         <a class="btn" href="mailto:you@example.com">Send an email</a>
                     </div>
 
-                    <!-- Social links: replace the URLs with yours -->
+                    <!-- Social links: put your real URL in, then delete data-draft so the link shows on the live site -->
                     <div class="socials">
                         <a href="https://github.com/NeedroN" target="_blank" rel="noopener">GitHub ↗</a>
-                        <a href="https://www.linkedin.com/in/your-profile" target="_blank" rel="noopener">LinkedIn ↗</a>
-                        <a href="https://www.pixiv.net/" target="_blank" rel="noopener">Pixiv ↗</a>
-                        <a href="https://x.com/your-handle" target="_blank" rel="noopener">X ↗</a>
+                        <a data-draft href="https://www.linkedin.com/in/your-profile" target="_blank" rel="noopener">LinkedIn ↗</a>
+                        <a data-draft href="https://www.pixiv.net/" target="_blank" rel="noopener">Pixiv ↗</a>
+                        <a data-draft href="https://x.com/your-handle" target="_blank" rel="noopener">X ↗</a>
                     </div>
                 </div>
             </div>
@@ -413,6 +399,7 @@
                         <li>Hand-written HTML, CSS &amp; JS</li>
                         <li>Motion by <a href="https://animejs.com" target="_blank" rel="noopener">anime.js</a></li>
                         <li>Hosted on GitHub Pages</li>
+                        <li>HimeAI avatar by <a href="https://booth.pm/en/items/6499774" target="_blank" rel="noopener">Snow Bear Project</a></li>
                     </ul>
                 </div>
                 <div>
@@ -425,7 +412,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>© <span data-year>2026</span> Needron. Code and art by me unless noted.</span>
+                <span>© <span data-year>2026</span> Needron · Muhammad Nordeen Syahmi Bin Salfarudeen</span>
                 <a href="#top">Back to top ↑</a>
             </div>
         </div>

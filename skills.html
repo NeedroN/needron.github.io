@@ -8,19 +8,23 @@
     <meta name="description" content="Skills of Nordeen (Needron) in programming, AI, multimedia and illustration.">
     <meta property="og:title" content="Skills · Needron">
     <meta property="og:description" content="Skills of Nordeen (Needron) in programming, AI, multimedia and illustration.">
-    <meta property="og:image" content="assets/img/og-cover.png">
+    <meta property="og:image" content="https://needron.github.io/assets/img/og-cover.png">
     <meta name="theme-color" content="#0a0814">
     <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
 
     <!-- ========== Fonts ========== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- ========== Styles ========== -->
     <link rel="stylesheet" href="assets/css/style.css">
     <script>
         document.documentElement.classList.add('js');
+        // Preview mode (your own computer, or any page with ?preview): shows draft items and "add file" labels
+        if (/^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || location.search.includes('preview')) {
+            document.documentElement.classList.add('dev');
+        }
         setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
     </script>
 </head>
@@ -28,7 +32,6 @@
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <canvas id="stars" aria-hidden="true"></canvas>
-    <div class="progress" aria-hidden="true"></div>
 
     <!-- ========== Navigation ========== -->
     <header class="nav">

@@ -1,26 +1,46 @@
 /* ========== anime.js v4 (loaded from a CDN, nothing to install) ========== */
 import {
-    animate, createTimeline, createTimer, createAnimatable, createDrawable, createLayout,
-    onScroll, splitText, scrambleText, stagger, utils
+    animate, createTimeline, createTimer, createDrawable, createLayout, onScroll, splitText, stagger, utils
 } from 'https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js';
 
 window.__animeReady = true;
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const preview = document.documentElement.classList.contains('dev');
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-const ease = 'outExpo';
+
+// One motion style for the whole site: same easing, same distance, same speed
+const ease = 'outQuart';
+const reveal = { opacity: [0, 1], y: [16, 0], duration: 700, ease };
+
+
+/* ========== Drafts: removed from the live site (kept in preview mode) ========== */
+if (!preview) $$('[data-draft]').forEach(el => el.remove());
 
 
 /* ========== Image placeholders ========== */
-// Real image found: hide the "add file" label. Missing: remove the broken image so the gradient shows.
+// Real image found: fade it in. Missing: remove the broken image so the tile shows.
+// On the live site, missing gallery images are removed, and an empty gallery is hidden.
+const missingImage = img => {
+    const tile = img.parentElement;
+    img.remove();
+    const gallery = tile.closest('.gallery');
+    if (preview || !gallery) return;
+    tile.remove();
+    if (!gallery.children.length) {
+        const section = gallery.closest('section');
+        $(`.toc a[href="#${section.id}"]`)?.remove();
+        section.remove();
+    }
+};
+
 $$('.ph img').forEach(img => {
     const ok = () => img.parentElement.classList.add('has-img');
-    const missing = () => img.remove();
-    if (img.complete) img.naturalWidth ? ok() : missing();
+    if (img.complete) img.naturalWidth ? ok() : missingImage(img);
     else {
         img.addEventListener('load', ok, { once: true });
-        img.addEventListener('error', missing, { once: true });
+        img.addEventListener('error', () => missingImage(img), { once: true });
     }
 });
 
@@ -39,9 +59,6 @@ toggle?.addEventListener('click', () => {
     toggle.setAttribute('aria-expanded', open);
     toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     links.classList.toggle('is-open', open);
-    if (open && !reduceMotion) {
-        animate(links.querySelectorAll('li'), { opacity: [0, 1], x: [-12, 0], delay: stagger(50), duration: 500, ease });
-    }
 });
 
 links?.addEventListener('click', e => {
@@ -63,7 +80,7 @@ if (navTargets.length) {
 }
 
 
-/* ========== Starfield background ========== */
+/* ========== Starfield background (stars twinkle slowly) ========== */
 const canvas = $('#stars');
 if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -77,48 +94,39 @@ if (canvas) {
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        stars = Array.from({ length: Math.min(220, (w * h / 6500) | 0) }, () => ({
+        stars = Array.from({ length: Math.min(180, (w * h / 8000) | 0) }, () => ({
             x: Math.random() * w,
             y: Math.random() * h,
             r: Math.random() * 1.1 + .2,          // size
-            a: Math.random() * .55 + .15,         // brightness
-            s: Math.random() * .0015 + .0004,     // twinkle speed
+            a: Math.random() * .5 + .15,          // brightness
+            s: Math.random() * .0012 + .0003,     // twinkle speed
             p: Math.random() * 6.28,              // twinkle offset
-            d: Math.random() * .3 + .05,          // parallax depth
             c: tints[(Math.random() * tints.length) | 0]
         }));
     };
 
-    // Stars twinkle and drift slightly with scroll for depth
     const draw = t => {
         ctx.clearRect(0, 0, w, h);
-        const sy = scrollY;
         for (const s of stars) {
-            const a = reduceMotion ? s.a : s.a * (.55 + .45 * Math.sin(t * s.s + s.p));
-            const y = ((s.y - sy * s.d) % h + h) % h;
-            ctx.fillStyle = `rgba(${s.c},${a})`;
+            ctx.fillStyle = `rgba(${s.c},${s.a * (.6 + .4 * Math.sin(t * s.s + s.p))})`;
             ctx.beginPath();
-            ctx.arc(s.x, y, s.r, 0, 6.283);
+            ctx.arc(s.x, s.y, s.r, 0, 6.283);
             ctx.fill();
         }
     };
 
     build();
-    addEventListener('resize', build);
-    if (reduceMotion) {
-        draw(0);
-        addEventListener('scroll', () => draw(0), { passive: true });
-    } else {
-        createTimer({ loop: true, onUpdate: self => draw(self.currentTime) });
-    }
+    addEventListener('resize', () => { build(); draw(0); });
+    if (reduceMotion) draw(0);
+    else createTimer({ loop: true, onUpdate: self => draw(self.currentTime) });
 }
 
 
 /* ========== Hero orbit: rings and the two chips travelling on them ========== */
 const orbit = $('.orbit');
 const rings = [
-    { rx: .47, ry: .16, tilt: -24, speed: 14000, phase: 0 },    // ring 1: code chip
-    { rx: .43, ry: .2, tilt: 32, speed: 19000, phase: 2.2 }      // ring 2: art chip
+    { rx: .47, ry: .16, tilt: -24, speed: 18000, phase: 0 },    // ring 1: code chip
+    { rx: .43, ry: .2, tilt: 32, speed: 24000, phase: 2.2 }      // ring 2: art chip
 ];
 
 // Point on a tilted ellipse, as a fraction of the orbit box (0 to 1)
@@ -147,7 +155,7 @@ if (orbit) {
         const angle = ring.phase + (reduceMotion ? 0 : time / ring.speed * Math.PI * 2);
         const [x, y] = ringPoint(ring, angle);
         const behind = Math.sin(angle) < 0;
-        sat.style.transform = `translate(${x * orbit.offsetWidth}px, ${y * orbit.offsetHeight}px) scale(${behind ? .82 : 1})`;
+        sat.style.transform = `translate(${x * orbit.offsetWidth}px, ${y * orbit.offsetHeight}px) scale(${behind ? .85 : 1})`;
         sat.style.zIndex = behind ? 0 : 2;
         sat.style.opacity = behind ? .55 : 1;
     });
@@ -159,159 +167,50 @@ if (orbit) {
 }
 
 
-/* ========== Everything below is motion only (skipped for reduced motion) ========== */
+/* ========== Entrance and scroll motion (skipped for reduced motion) ========== */
 if (!reduceMotion) {
 
-    /* ----- Scroll progress bar ----- */
-    animate('.progress', {
-        scaleX: [0, 1],
-        ease: 'linear',
-        autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'end end', sync: true })
-    });
-
-
-    /* ----- Hero intro ----- */
-    const heroTitle = $('.hero-title, .page-hero h1');
+    /* ----- Hero intro: title rises word by word, then the rest fades in ----- */
+    const heroTitle = $('.hero-title');
     if (heroTitle) {
         const { words } = splitText(heroTitle, { words: { wrap: 'clip', class: 'split-word' } });
         utils.set(words, { y: '110%' });
         heroTitle.style.visibility = 'visible';
+
         const intro = createTimeline({ defaults: { ease } });
-
-        intro.add(words, { y: ['110%', '0%'], duration: 1100, delay: stagger(55) });
-
-        if ($$('[data-hero]').length) {
-            intro.add('[data-hero]', { opacity: [0, 1], y: [18, 0], duration: 900, delay: stagger(90) }, '-=800');
-        }
+        intro
+            .add(words, { y: ['110%', '0%'], duration: 900, delay: stagger(40) })
+            .add('[data-hero]', { ...reveal, delay: stagger(80) }, '-=600');
 
         if (orbit) {
             intro
-                .add(createDrawable('.orbit-ring'), { draw: ['0 0', '0 1'], duration: 1600, delay: stagger(200), ease: 'inOutQuart' }, 0)
-                .add('.planet', { scale: [.6, 1], opacity: [0, 1], duration: 1200, ease: 'outBack(1.4)' }, 200)
-                .add('.satellite', { opacity: [0, 1], duration: 600 }, 900);
+                .add(createDrawable('.orbit-ring'), { draw: ['0 0', '0 1'], duration: 1400, delay: stagger(150), ease: 'inOutQuart' }, 0)
+                .add('.planet', { scale: [.9, 1], opacity: [0, 1], duration: 900 }, 200)
+                .add('.satellite', { opacity: [0, 1], duration: 500 }, 800);
         }
     }
 
 
-    /* ----- Hero fades and drifts as you scroll past it ----- */
-    if (orbit) {
-        animate(orbit, {
-            y: [0, 140],
-            scale: [1, .82],
-            opacity: [1, 0],
-            ease: 'linear',
-            autoplay: onScroll({ target: '.hero', enter: 'start start', leave: 'start end', sync: .25 })
-        });
-    }
-
-
-    /* ----- Mouse-follow glow in the hero (desktop only) ----- */
-    const glow = $('.cursor-glow');
-    const hero = $('.hero');
-    if (glow && hero && matchMedia('(pointer: fine)').matches) {
-        const follower = createAnimatable(glow, { x: 900, y: 900, ease: 'outQuart' });
-        follower.x(hero.offsetWidth * .7);
-        follower.y(hero.offsetHeight * .4);
-        hero.addEventListener('pointermove', e => {
-            const r = hero.getBoundingClientRect();
-            follower.x(e.clientX - r.left);
-            follower.y(e.clientY - r.top);
-        });
-    }
-
-
-    /* ----- "Currently ..." line scrambles between phrases ----- */
-    const now = $('#now-text');
-    if (now?.dataset.phrases) {
-        const phrases = now.dataset.phrases.split('|');
-        let i = 0;
-        setInterval(() => {
-            i = (i + 1) % phrases.length;
-            animate(now, { innerHTML: scrambleText({ text: phrases[i], chars: 'a-z', cursor: '_' }) });
-        }, 4200);
-    }
-
-
-    /* ----- Section titles: words rise into place when scrolled into view ----- */
-    $$('[data-split]').forEach(el => {
-        const { words } = splitText(el, { words: { wrap: 'clip', class: 'split-word' } });
-        utils.set(words, { y: '110%' });
-        el.style.visibility = 'visible';
-        animate(words, {
-            y: ['110%', '0%'],
-            duration: 1000,
-            delay: stagger(45),
-            ease,
+    /* ----- Single elements fade up once when scrolled into view ----- */
+    $$('[data-reveal]').forEach(el => {
+        animate(el, {
+            ...reveal,
             autoplay: onScroll({ target: el, enter: 'bottom-=80 top', sync: 'play', repeat: false })
         });
     });
 
 
-    /* ----- Single elements fade up on scroll ----- */
-    $$('[data-reveal]').forEach(el => {
-        animate(el, {
-            opacity: [0, 1],
-            y: [28, 0],
-            duration: 1000,
-            ease,
-            autoplay: onScroll({ target: el, enter: 'bottom-=60 top', sync: 'play', repeat: false })
-        });
-    });
-
-
-    /* ----- Groups: children appear one after another ----- */
+    /* ----- Groups: children fade up one after another ----- */
     $$('[data-stagger]').forEach(group => {
         animate(group.children, {
-            opacity: [0, 1],
-            y: [40, 0],
-            duration: 1000,
-            delay: stagger(110),
-            ease,
-            autoplay: onScroll({ target: group, enter: 'bottom-=60 top', sync: 'play', repeat: false })
+            ...reveal,
+            delay: stagger(80),
+            autoplay: onScroll({ target: group, enter: 'bottom-=80 top', sync: 'play', repeat: false })
         });
     });
 
 
-    /* ----- "In 30 seconds" icons draw themselves ----- */
-    $$('.pillar-icon').forEach(icon => {
-        animate(createDrawable(icon.querySelectorAll('path, rect, circle, polyline')), {
-            draw: ['0 0', '0 1'],
-            duration: 1400,
-            delay: stagger(140, { start: 300 }),
-            ease: 'inOutQuart',
-            autoplay: onScroll({ target: icon, enter: 'bottom-=40 top', sync: 'play', repeat: false })
-        });
-    });
-
-
-    /* ----- Numbers count up ----- */
-    $$('[data-count]').forEach(el => {
-        const counter = { n: 0 };
-        const suffix = el.dataset.suffix || '';
-        el.textContent = '0' + suffix;
-        animate(counter, {
-            n: +el.dataset.count,
-            duration: 1600,
-            ease: 'outQuart',
-            modifier: utils.round(0),
-            onUpdate: () => el.textContent = counter.n + suffix,
-            autoplay: onScroll({ target: el, enter: 'bottom-=40 top', sync: 'play', repeat: false })
-        });
-    });
-
-
-    /* ----- Word band slides sideways with the scroll ----- */
-    const band = $('.band-track');
-    if (band) {
-        animate(band, {
-            x: ['0%', '-30%'],
-            ease: 'linear',
-            autoplay: onScroll({ target: '.band', enter: 'end start', leave: 'start end', sync: .3 })
-        });
-    }
-
-
-    /* ----- About timeline: the line draws as you scroll through it ----- */
+    /* ----- About timeline: the line fills in as you scroll through it ----- */
     const line = $('.timeline-line .draw');
     if (line) {
         animate(createDrawable(line), {
@@ -320,61 +219,45 @@ if (!reduceMotion) {
             autoplay: onScroll({ target: '.timeline', enter: 'center top', leave: 'center bottom', sync: .4 })
         });
     }
-
-
-    /* ----- Project pages: cover image parallax ----- */
-    const coverImg = $('.cover');
-    if (coverImg) {
-        animate(coverImg, {
-            scale: [.94, 1],
-            opacity: [.4, 1],
-            ease: 'linear',
-            autoplay: onScroll({ target: coverImg, enter: 'end start', leave: 'center center', sync: .3 })
-        });
-    }
-
-
-    /* ----- Skills page: level dots light up ----- */
-    $$('.dots').forEach(dots => {
-        animate(dots.querySelectorAll('.on'), {
-            scale: [0, 1],
-            rotate: ['0deg', '45deg'],
-            duration: 700,
-            delay: stagger(70),
-            ease: 'outBack(2)',
-            autoplay: onScroll({ target: dots, enter: 'bottom-=20 top', sync: 'play', repeat: false })
-        });
-    });
-} else {
-    $$('[data-count]').forEach(el => el.textContent = el.dataset.count + (el.dataset.suffix || ''));
 }
 
 
-/* ========== Work filter: cards rearrange smoothly (anime.js layout) ========== */
+/* ========== Work filter: counts, and cards rearrange smoothly (anime.js layout) ========== */
 const grid = $('.work-grid');
-const chips = $$('.chip[data-filter]');
-if (grid && chips.length) {
+const filters = $('.filters');
+if (grid && filters) {
+    const chips = $$('.chip[data-filter]', filters);
+    const cards = () => $$('.card', grid);
+
+    // Show how many cards each filter has; hide empty filters, or the whole bar if only one type exists
+    chips.forEach(chip => {
+        const n = cards().filter(c => chip.dataset.filter === 'all' || c.dataset.cat === chip.dataset.filter).length;
+        chip.querySelector('small').textContent = n;
+        chip.hidden = n === 0;
+    });
+    if (chips.filter(c => !c.hidden && c.dataset.filter !== 'all').length < 2) filters.hidden = true;
+
     const layout = createLayout(grid, {
         children: '.card',
-        duration: reduceMotion ? 0 : 700,
+        duration: reduceMotion ? 0 : 500,
         ease: 'inOutQuart',
-        enterFrom: { opacity: 0, scale: .92 },
-        leaveTo: { opacity: 0, scale: .92 }
+        enterFrom: { opacity: 0 },
+        leaveTo: { opacity: 0 }
     });
 
     chips.forEach(chip => chip.addEventListener('click', () => {
         const filter = chip.dataset.filter;
         chips.forEach(c => c.setAttribute('aria-pressed', c === chip));
         layout.update(() => {
-            $$('.card', grid).forEach(card => {
+            cards().forEach(card => {
                 card.classList.toggle('is-hidden', filter !== 'all' && card.dataset.cat !== filter);
             });
-        }, { delay: reduceMotion ? 0 : stagger(40) });
+        });
     }));
 }
 
 
-/* ========== Copy email button ========== */
+/* ========== Copy email button: shows "Copied" for two seconds ========== */
 $$('.copy-btn').forEach(btn => {
     const label = btn.querySelector('b');
     btn.addEventListener('click', async () => {
@@ -384,11 +267,12 @@ $$('.copy-btn').forEach(btn => {
             location.href = 'mailto:' + btn.dataset.email;
             return;
         }
-        const show = text => reduceMotion
-            ? (label.textContent = text)
-            : animate(label, { innerHTML: scrambleText({ text, chars: 'a-z' }) });
-        show('Copied!');
-        setTimeout(() => show('Copy email'), 2200);
+        label.textContent = 'Copied';
+        btn.disabled = true;
+        setTimeout(() => {
+            label.textContent = 'Copy email';
+            btn.disabled = false;
+        }, 2000);
     });
 });
 
