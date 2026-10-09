@@ -1,7 +1,7 @@
 /* ========== anime.js v4 (loaded from a CDN, nothing to install) ========== */
 import {
     animate, createAnimatable, createTimeline, createTimer, createDrawable, createLayout, createScope,
-    onScroll, splitText, scrambleText, stagger, svg, utils, waapi, engine
+    onScroll, splitText, scrambleText, stagger, utils, waapi, engine
 } from 'https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js';
 
 window.__animeReady = true;
@@ -571,105 +571,46 @@ if (artGrid) {
 }
 
 
-/* ========== Video player (HimeAI demo) ========== */
-const player = $('[data-player]');
+/* ========== Video player (HimeAI demo on YouTube) ========== */
+// Only the cover and play button load at first; YouTube's player is added when Play is pressed.
+const player = $('[data-youtube]');
 if (player) {
-    const video = $('video', player);
-    const bigBtn = $('.player-big', player);
-    const toggleBtn = $('.player-toggle', player);
-    const track = $('.player-track', player);
-    const fill = $('.player-fill', player);
-    const time = $('.player-time', player);
-    const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const frame = $('.player-frame', player);
+    const big = $('.player-big', player);
+    let yt, playing = false, pausedByTab = false;
 
-    const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
-    const update = () => {
-        const p = video.duration ? video.currentTime / video.duration : 0;
-        utils.set(fill, { scaleX: p });
-        time.textContent = `${fmt(video.currentTime)} / ${fmt(video.duration)}`;
-        track.setAttribute('aria-valuenow', Math.round(p * 100));
-    };
+    // Tell the YouTube player what to do (needs enablejsapi=1 in its address)
+    const command = func => yt?.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
 
-    // Smooth progress bar while playing (runs on the engine, so it pauses with the tab)
-    const ticker = createTimer({ autoplay: false, loop: true, onUpdate: update });
-
-    // Play and pause icons: each half of the triangle morphs into one pause bar
-    const morphIcons = playing => {
-        const shape = playing ? 'pause' : 'play';
-        $$('.glyph-l, .glyph-r', player).forEach(path => {
-            const side = path.classList.contains('glyph-l') ? 'l' : 'r';
-            animate(path, { d: svg.morphTo(`#shape-${shape}-${side}`), duration: reduce() ? 0 : 350, ease: 'inOutQuad' });
-        });
-    };
-
-    const setPlaying = playing => {
-        player.classList.toggle('is-playing', playing);
-        toggleBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-        bigBtn.setAttribute('aria-label', playing ? 'Pause the demo video' : 'Play the demo video');
-        morphIcons(playing);
-        playing ? ticker.play() : (ticker.pause(), update());
-
-        // Big button: steps aside while playing, comes back (ring redrawn) when paused
-        if (reduce()) {
-            bigBtn.style.opacity = playing ? 0 : 1;
-        } else {
-            waapi.animate(bigBtn, { opacity: playing ? 0 : 1, scale: playing ? 1.15 : [.85, 1], duration: 400, ease });
-            if (!playing) animate(createDrawable($('.player-ring', bigBtn)), { draw: ['0 0', '0 1'], duration: 700, ease: 'inOutQuart' });
-        }
-    };
-
-    const togglePlay = () => video.paused ? video.play() : video.pause();
-    bigBtn.addEventListener('click', togglePlay);
-    toggleBtn.addEventListener('click', togglePlay);
-    video.addEventListener('click', togglePlay);
-    video.addEventListener('play', () => setPlaying(true));
-    video.addEventListener('pause', () => setPlaying(false));
-    video.addEventListener('loadedmetadata', update);
-    video.addEventListener('seeked', update);
-
-    // No video file yet: show "coming soon" (with the file name in preview mode)
-    const missing = () => {
-        player.classList.add('is-missing');
-        if (preview) $('.player-soon', player).textContent = 'add assets/video/himeai-demo.mp4';
-    };
-    video.addEventListener('error', missing);
-    if (video.error) missing();
-
-    // Seek by clicking or dragging along the bar, or with the arrow keys
-    const seekTo = e => {
-        const r = track.getBoundingClientRect();
-        video.currentTime = utils.clamp((e.clientX - r.left) / r.width, 0, 1) * (video.duration || 0);
-        update();
-    };
-    track.addEventListener('pointerdown', e => {
-        track.setPointerCapture(e.pointerId);
-        seekTo(e);
-        track.addEventListener('pointermove', seekTo);
-        track.addEventListener('pointerup', () => track.removeEventListener('pointermove', seekTo), { once: true });
-    });
-    track.addEventListener('keydown', e => {
-        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-        e.preventDefault();
-        video.currentTime += e.key === 'ArrowRight' ? 5 : -5;
-        update();
+    big.addEventListener('click', () => {
+        yt = document.createElement('iframe');
+        yt.src = `https://www.youtube-nocookie.com/embed/${player.dataset.youtube}?autoplay=1&rel=0&playsinline=1&enablejsapi=1`;
+        yt.title = 'HimeAI demo video';
+        yt.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        yt.allowFullscreen = true;
+        yt.style.opacity = 0;
+        frame.append(yt);
+        animate(big, { scale: .6, opacity: 0, duration: 300, ease: 'inBack' }).then(() => big.remove());
+        yt.addEventListener('load', () => {
+            waapi.animate(yt, { opacity: [0, 1], duration: 500, ease: 'linear' });
+            yt.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*');   // ask YouTube to report play/pause
+        }, { once: true });
     });
 
-    // Full screen
-    $('.player-full', player).addEventListener('click', () => {
-        if (video.requestFullscreen) video.requestFullscreen();
-        else video.webkitEnterFullscreen?.();
+    // Keep track of whether the video is playing (YouTube state 1 = playing)
+    addEventListener('message', e => {
+        if (!yt || e.source !== yt.contentWindow) return;
+        try {
+            const state = JSON.parse(e.data).info?.playerState;
+            if (state !== undefined) playing = state === 1;
+        } catch {}
     });
 
-    // Switching tabs pauses the video; coming back resumes it from the same spot
-    let resumeOnReturn = false;
+    // Switching tabs pauses the video; coming back carries on where it left off
     document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            resumeOnReturn = !video.paused;
-            if (resumeOnReturn) video.pause();
-        } else if (resumeOnReturn) {
-            video.play();
-            resumeOnReturn = false;
-        }
+        if (!yt) return;
+        if (document.hidden && playing) { command('pauseVideo'); pausedByTab = true; }
+        else if (pausedByTab) { command('playVideo'); pausedByTab = false; }
     });
 }
 

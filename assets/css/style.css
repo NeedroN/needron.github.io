@@ -1456,7 +1456,7 @@ a.card:hover {
     border-radius: var(--r);
 }
 
-/* ----- Video player (HimeAI demo) ----- */
+/* ----- Video player (HimeAI demo, YouTube) ----- */
 .player {
     position: relative;
     margin: 0;
@@ -1471,13 +1471,14 @@ a.card:hover {
     background: #000;
 }
 
-.player video {
+.player-poster,
+.player iframe {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    display: block;
-    object-fit: contain;
-    background: #000;
-    cursor: pointer;
+    border: 0;
+    object-fit: cover;
 }
 
 .player-big {
@@ -1506,133 +1507,25 @@ a.card:hover {
     overflow: visible;
 }
 
+.player-big path {
+    fill: currentColor;
+}
+
 .player-ring {
     fill: none;
     stroke: var(--violet);
     stroke-width: 2;
 }
 
-.player-big path,
-/* Hidden shapes the icons morph between (kept in the page so the browser can measure them) */
-.player-shapes {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-}
-
-/* While playing, the big button steps aside */
-.player.is-playing .player-big {
-    pointer-events: none;
-}
-
-.player-soon {
-    position: absolute;
-    left: 50%;
-    bottom: var(--space-3);
-    translate: -50% 0;
-    padding: 4px 12px;
-    border-radius: var(--r-sm);
-    background: rgba(10, 8, 20, .7);
-    color: var(--text-soft);
-    font: 500 .8rem var(--font-mono);
-    white-space: nowrap;
-    display: none;
-}
-
-.player.is-missing .player-soon {
-    display: block;
-}
-
-.player.is-missing .player-big,
-.player.is-missing .player-bar {
-    display: none;
-}
-
-.player.is-missing video {
-    cursor: default;
-}
-
-.player-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-2);
-}
-
-.player-bar button {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    flex: none;
-    padding: 0;
-    border: 1px solid var(--line-strong);
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: border-color .2s;
-}
-
-.player-bar button:hover {
-    border-color: var(--violet);
-}
-
-.player-bar svg {
-    width: 18px;
-    height: 18px;
-}
-
-.player-toggle svg {
-    width: 28px;
-    height: 28px;
-}
-
-.player-full path {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-/* Progress bar: the fill is scaled (not resized), which the GPU handles smoothly */
-.player-track {
-    position: relative;
-    flex: 1;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--bg-soft);
-    cursor: pointer;
-}
-
-.player-track::before {
-    content: "";
-    position: absolute;
-    inset: -12px 0;              /* bigger hit area for touch */
-}
-
-.player-fill {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--violet);
-    transform: scaleX(0);
-    transform-origin: left;
-}
-
-.player-time {
-    min-width: 9ch;
-    color: var(--text-dim);
-    font: 500 .8rem var(--font-mono);
-    text-align: right;
-}
-
 .player figcaption {
     margin-top: var(--space-2);
     color: var(--text-dim);
     font-size: .92rem;
+}
+
+.player figcaption a {
+    color: var(--violet);
+    white-space: nowrap;
 }
 
 .cover.tall {
