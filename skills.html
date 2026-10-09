@@ -5,191 +5,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skills · Needron</title>
-    <meta name="description" content="Skills of Nordeen in programming, AI, multimedia and illustration.">
-    <meta name="theme-color" content="#09070f">
+    <meta name="description" content="Skills of Nordeen (Needron) in programming, AI, multimedia and illustration.">
+    <meta property="og:title" content="Skills · Needron">
+    <meta property="og:description" content="Skills of Nordeen (Needron) in programming, AI, multimedia and illustration.">
+    <meta property="og:image" content="assets/img/og-cover.png">
+    <meta name="theme-color" content="#0a0814">
     <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
 
     <!-- ========== Fonts ========== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- ========== Styles ========== -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <script>document.documentElement.classList.add('js')</script>
+    <script>
+        document.documentElement.classList.add('js');
+        setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
+    </script>
 </head>
 
 <body>
-    <!-- Starfield background -->
+    <a class="skip-link" href="#main">Skip to content</a>
     <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="progress" aria-hidden="true"></div>
 
-    <!-- ========== Navigation bar ========== -->
+    <!-- ========== Navigation ========== -->
     <header class="nav">
-        <div class="wrap">
-            <a class="logo" href="index.html"><img src="assets/img/logo.svg" alt="" width="30" height="30">Needron</a>
-            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+        <div class="wrap nav-inner">
+            <a class="brand" href="index.html" aria-label="Needron, home">
+                <img src="assets/img/logo.svg" alt="" width="32" height="32">Needron
+            </a>
+
+            <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
                 <span></span><span></span><span></span>
             </button>
-            <ul class="nav-links" id="nav-links">
-                <li><a href="index.html#about">About</a></li>
-                <li><a href="index.html#projects">Projects</a></li>
-                <li><a href="skills.html" aria-current="page">Skills</a></li>
-                <li><a href="index.html#contact">Contact</a></li>
-            </ul>
+
+            <nav>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="index.html#work">Work</a></li>
+                    <li><a href="skills.html" aria-current="page">Skills</a></li>
+                    <li><a href="index.html#journey">About</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
-    <!-- Level bars: change the % in style="--lvl:80%" to set how full each bar is -->
-    <main class="wrap">
-        <!-- ========== Page header ========== -->
-        <header class="page-head">
+    <main id="main" class="wrap">
+
+        <!-- ========== Page title ========== -->
+        <header class="page-hero">
             <a class="back" href="index.html#skills">← Back home</a>
-            <p class="eyebrow">Skills</p>
-            <h1 class="reveal">Skills &amp; <span class="grad">tools</span></h1>
-            <p class="lead reveal">Levels are self-assessed. Placeholder values for now.</p>
+            <p class="label">Skills</p>
+            <h1>What I can do, and how well.</h1>
+            <p class="intro" data-reveal>Self-assessed levels, each with where I've used it. Five diamonds means I can teach it; one means I'm just starting.</p>
+            <div class="legend" data-reveal>
+                <span><span class="dots" style="display:inline-flex"><i class="on"></i></span>&nbsp; Learning</span>
+                <span><span class="dots" style="display:inline-flex"><i class="on"></i><i class="on"></i><i class="on"></i></span>&nbsp; Comfortable</span>
+                <span><span class="dots" style="display:inline-flex"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>&nbsp; Expert</span>
+            </div>
         </header>
 
-        <!-- ========== Programming ========== -->
-        <section class="skill-group reveal">
-            <h2>Programming</h2>
-            <ul class="skill-list">
-                <!-- Python (80%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Python</span><small>Advanced</small></div>
-                    <div class="bar"><i style="--lvl:80%"></i></div>
-                    <p>Backend, AI and scripting. Used across HimeAI.</p>
-                </li>
-
-                <!-- JavaScript (65%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>JavaScript</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:65%"></i></div>
-                    <p>Web interfaces and this site.</p>
-                </li>
-
-                <!-- HTML &amp; CSS (75%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>HTML &amp; CSS</span><small>Advanced</small></div>
-                    <div class="bar"><i style="--lvl:75%"></i></div>
+            <!-- ========== Programming ========== -->
+            <section class="skill-table" style="--c: var(--sky)" data-reveal>
+                <h2><i></i>Programming</h2>
+                <!-- Python: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Python</h3>
+                    <div class="dots" aria-label="4 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+                    <p>My main language. Backend, AI and scripting for HimeAI.</p>
+                </div>
+                <!-- JavaScript: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>JavaScript</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>Web interfaces and animation, including this site.</p>
+                </div>
+                <!-- HTML &amp; CSS: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>HTML &amp; CSS</h3>
+                    <div class="dots" aria-label="4 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
                     <p>Responsive, accessible layouts.</p>
-                </li>
+                </div>
+                <!-- Java: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Java</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>University coursework and object-oriented programming.</p>
+                </div>
+            </section>
 
-                <!-- Java (55%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Java</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:55%"></i></div>
-                    <p>Coursework and OOP.</p>
-                </li>
-            </ul>
-        </section>
+            <!-- ========== AI &amp; backend ========== -->
+            <section class="skill-table" style="--c: var(--sky)" data-reveal>
+                <h2><i></i>AI &amp; backend</h2>
+                <!-- PyTorch: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>PyTorch</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>Built and trained a Transformer from scratch.</p>
+                </div>
+                <!-- FastAPI: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>FastAPI</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>REST and WebSocket APIs for HimeAI.</p>
+                </div>
+                <!-- Ollama: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Ollama</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>Running and prompting local language models.</p>
+                </div>
+                <!-- SQLite: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>SQLite</h3>
+                    <div class="dots" aria-label="2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+                    <p>Learning it for Hime's long-term memory.</p>
+                </div>
+            </section>
 
-        <!-- ========== AI &amp; Backend ========== -->
-        <section class="skill-group reveal">
-            <h2>AI &amp; Backend</h2>
-            <ul class="skill-list">
-                <!-- PyTorch (60%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>PyTorch</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:60%"></i></div>
-                    <p>Training a Transformer from scratch.</p>
-                </li>
+            <!-- ========== Multimedia ========== -->
+            <section class="skill-table" style="--c: var(--violet)" data-reveal>
+                <h2><i></i>Multimedia</h2>
+                <!-- UI/UX design: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>UI/UX design</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>From wireframes to finished interfaces.</p>
+                </div>
+                <!-- Web animation: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Web animation</h3>
+                    <div class="dots" aria-label="3 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                    <p>anime.js and CSS motion.</p>
+                </div>
+                <!-- Video editing: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Video editing</h3>
+                    <div class="dots" aria-label="2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+                    <p>Editing and simple compositing.</p>
+                </div>
+            </section>
 
-                <!-- FastAPI (70%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>FastAPI</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:70%"></i></div>
-                    <p>REST and WebSocket APIs.</p>
-                </li>
-
-                <!-- Ollama (65%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Ollama</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:65%"></i></div>
-                    <p>Running local LLMs.</p>
-                </li>
-
-                <!-- SQLite (50%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>SQLite</span><small>Learning</small></div>
-                    <div class="bar"><i style="--lvl:50%"></i></div>
-                    <p>Long-term memory store.</p>
-                </li>
-            </ul>
-        </section>
-
-        <!-- ========== Multimedia ========== -->
-        <section class="skill-group reveal">
-            <h2>Multimedia</h2>
-            <ul class="skill-list">
-                <!-- UI/UX design (65%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>UI/UX design</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:65%"></i></div>
-                    <p>Wireframes to polished interfaces.</p>
-                </li>
-
-                <!-- Motion &amp; animation (60%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Motion &amp; animation</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:60%"></i></div>
-                    <p>Web motion and 2D animation.</p>
-                </li>
-
-                <!-- Video editing (55%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Video editing</span><small>Intermediate</small></div>
-                    <div class="bar"><i style="--lvl:55%"></i></div>
-                    <p>Editing and compositing.</p>
-                </li>
-            </ul>
-        </section>
-
-        <!-- ========== Illustration ========== -->
-        <section class="skill-group reveal">
-            <h2>Illustration</h2>
-            <ul class="skill-list">
-                <!-- Character design (80%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Character design</span><small>Advanced</small></div>
-                    <div class="bar"><i style="--lvl:80%"></i></div>
-                    <p>Anime-style original characters.</p>
-                </li>
-
-                <!-- Coloring &amp; lighting (75%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Coloring &amp; lighting</span><small>Advanced</small></div>
-                    <div class="bar"><i style="--lvl:75%"></i></div>
+            <!-- ========== Illustration ========== -->
+            <section class="skill-table" style="--c: var(--pink)" data-reveal>
+                <h2><i></i>Illustration</h2>
+                <!-- Character design: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Character design</h3>
+                    <div class="dots" aria-label="4 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+                    <p>Original anime-style characters, like Hime.</p>
+                </div>
+                <!-- Colouring &amp; lighting: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Colouring &amp; lighting</h3>
+                    <div class="dots" aria-label="4 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
                     <p>Cel and soft shading.</p>
-                </li>
-
-                <!-- Clip Studio Paint (80%) -->
-                <li class="skill">
-                    <div class="skill-top"><span>Clip Studio Paint</span><small>Advanced</small></div>
-                    <div class="bar"><i style="--lvl:80%"></i></div>
-                    <p>Main drawing software.</p>
-                </li>
-            </ul>
-        </section>
+                </div>
+                <!-- Clip Studio Paint: change the number of class="on" dots (out of 5) -->
+                <div class="skill-row">
+                    <h3>Clip Studio Paint</h3>
+                    <div class="dots" aria-label="4 out of 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+                    <p>My main drawing software.</p>
+                </div>
+            </section>
 
         <!-- ========== Currently learning ========== -->
-        <section class="skill-group reveal">
-            <h2>Currently learning</h2>
-            <ul class="tags"><li>Speech recognition</li><li>Text-to-speech</li><li>Live2D</li><li>Three.js</li></ul>
+        <section class="skill-table" data-reveal>
+            <h2><i></i>Currently learning</h2>
+            <ul class="tags">
+                <li>Speech recognition</li>
+                <li>Text-to-speech</li>
+                <li>Live2D</li>
+                <li>Three.js</li>
+            </ul>
         </section>
+
+        <!-- ========== Call to action ========== -->
+        <a class="next" href="index.html#work">
+            <div>
+                <small>See these skills in use</small>
+                <strong>Browse my work</strong>
+            </div>
+            <span class="arrow" aria-hidden="true">→</span>
+        </a>
     </main>
 
     <!-- ========== Footer ========== -->
     <footer class="footer">
         <div class="wrap">
             <div class="footer-bottom">
-                <span>© <span data-year>2026</span> Muhammad Nordeen Syahmi Bin Salfarudeen · Needron</span>
-                <a href="index.html#contact">Contact</a>
+                <span>© <span data-year>2026</span> Needron · Muhammad Nordeen Syahmi Bin Salfarudeen</span>
+                <a href="index.html#contact">Contact me</a>
             </div>
         </div>
     </footer>
 
-    <!-- ========== Scripts ========== -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
-    <script src="assets/js/main.js" defer></script>
+    <!-- ========== Script (loads anime.js v4 itself) ========== -->
+    <script type="module" src="assets/js/main.js"></script>
 </body>
 </html>
