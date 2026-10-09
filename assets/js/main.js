@@ -1,6 +1,6 @@
 /* ========== anime.js v4 (loaded from a CDN, nothing to install) ========== */
 import {
-    animate, createTimeline, createTimer, createDrawable, createLayout, createScope,
+    animate, createAnimatable, createTimeline, createTimer, createDrawable, createLayout, createScope,
     onScroll, splitText, scrambleText, stagger, svg, utils, waapi, engine
 } from 'https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js';
 
@@ -296,31 +296,23 @@ createScope({
     });
 
 
-    /* ----- "Coming soon" heading: letters unscramble, then a slow wave runs through them ----- */
+    /* ----- "Coming soon" heading: scrambles into place, then re-scrambles every few seconds and on hover ----- */
     const comingTitle = $('.coming-title');
     if (comingTitle) {
         const text = comingTitle.textContent;
+        const scramble = (duration = 900) => animate(comingTitle, {
+            innerHTML: scrambleText({ text, chars: 'a-z!<>-_/[]{}=+*^?#', cursor: '_', revealRate: 40 }),
+            duration
+        });
         comingTitle.style.opacity = 0;
         const intro = createTimeline({ autoplay: false })
             .set(comingTitle, { opacity: 1 })
-            .add(comingTitle, {
-                innerHTML: scrambleText({ text, chars: 'a-z', cursor: '_' }),
-                duration: 1100
-            })
             .call(() => {
-                // Once readable, split into letters and keep a gentle wave going
-                const { chars } = splitText(comingTitle, { chars: true });
-                animate(chars, {
-                    y: [0, '-0.18em', 0],
-                    color: ['#eeeaf8', '#ff7ac8', '#eeeaf8'],
-                    duration: 900,
-                    delay: stagger(55),
-                    ease: 'inOutSine',
-                    loop: true,
-                    loopDelay: 2600
-                });
+                scramble(1400);
+                createTimer({ duration: 6000, loop: true, onLoop: () => scramble() });
             });
         playOnEnter(comingTitle, intro);
+        comingTitle.closest('.coming-head').addEventListener('pointerenter', () => scramble());
     }
 
 
@@ -339,6 +331,58 @@ createScope({
         waapi.animate('.player-frame', { opacity: [0, 1], scale: [.97, 1], duration: 900, ease });
         animate(createDrawable('.player-ring'), { draw: ['0 0', '0 1'], duration: 1400, delay: 300, ease: 'inOutQuart' });
     }
+});
+
+
+/* ========== Hover motion (mouse only, skipped with reduced motion) ========== */
+const canHover = matchMedia('(hover: hover) and (pointer: fine)');
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+const onHover = (el, { enter, move, leave }) => {
+    const ok = () => canHover.matches && !calm.matches;
+    el.addEventListener('pointerenter', e => ok() && enter?.(e));
+    el.addEventListener('pointermove', e => ok() && move?.(e));
+    el.addEventListener('pointerleave', e => ok() && leave?.(e));
+};
+
+// Work cards and gallery pieces: the picture zooms in slightly and drifts against the pointer
+$$('a.card, .art-open').forEach(el => {
+    let pic;
+    const get = () => {
+        const img = $('img', el);
+        if (img && !pic) pic = createAnimatable(img, { x: 600, y: 600, scale: 700, ease: 'outQuart' });
+        return pic;
+    };
+    onHover(el, {
+        enter: () => get()?.scale(1.06),
+        move: e => {
+            if (!get()) return;
+            const box = el.getBoundingClientRect();
+            pic.x(((e.clientX - box.left) / box.width - .5) * -12);
+            pic.y(((e.clientY - box.top) / box.height - .5) * -12);
+        },
+        leave: () => { if (get()) { pic.x(0); pic.y(0); pic.scale(1); } }
+    });
+});
+
+// Card arrow: a quick nudge to the right each time you hover
+$$('a.card .link span').forEach(arrow => onHover(arrow.closest('a'), {
+    enter: () => animate(arrow, { x: [0, 6, 3], duration: 500, ease: 'outBack' }),
+    leave: () => animate(arrow, { x: 0, duration: 300, ease })
+}));
+
+// Coming soon cards: the title scrambles, the status dot pings
+$$('.soon-card').forEach(card => {
+    const title = $('h4', card);
+    const dot = $('.soon-status i', card);
+    const text = title.textContent;
+    onHover(card, {
+        enter: () => {
+            animate(title, { innerHTML: scrambleText({ text, chars: 'a-z', revealRate: 30 }), duration: 600 });
+            animate(dot, { scale: [1, 1.9, 1], duration: 700, ease: 'outElastic(1, .5)' });
+            animate(card, { borderColor: getComputedStyle(card).getPropertyValue('--c') || '#a78bfa', duration: 300 });
+        },
+        leave: () => animate(card, { borderColor: getComputedStyle(document.documentElement).getPropertyValue('--line-strong'), duration: 300 })
+    });
 });
 
 
