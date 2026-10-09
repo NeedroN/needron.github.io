@@ -10,7 +10,8 @@
     <meta property="og:description" content="A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.">
     <meta property="og:image" content="https://needron.github.io/assets/img/og-cover.png">
     <meta name="theme-color" content="#0a0814">
-    <link rel="icon" href="../assets/img/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="../assets/img/projects/himeai-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="../assets/img/projects/himeai-icon.png">
 
     <!-- ========== Fonts ========== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,7 +62,7 @@
         <header class="page-hero">
             <a class="back" href="../index.html#work">← All work</a>
             <p class="label" style="color: var(--sky)">Computer Science · Featured</p>
-            <h1>HimeAI</h1>
+            <h1 class="page-logo"><img src="../assets/img/projects/himeai-logo.webp" alt="HimeAI" width="1600" height="546"></h1>
             <p class="intro" data-reveal>A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.</p>
             <dl class="meta" data-stagger>
                     <div><dt>Role</dt><dd>Solo developer</dd></div>
@@ -72,10 +73,51 @@
             </dl>
         </header>
 
-        <!-- ========== Cover image: add assets/img/projects/himeai-cover.webp ========== -->
-        <div class="cover ph" data-file="projects/himeai-cover.webp">
-            <img src="../assets/img/projects/himeai-cover.webp" alt="HimeAI cover">
-        </div>
+        <!-- ========== Demo video: add assets/video/himeai-demo.mp4 (1920×1080 MP4, H.264, under 25 MB) ========== -->
+        <!-- The poster (cover) shows until the video plays. Until the file exists, the player shows "Demo video coming soon". -->
+        <figure class="player" data-player>
+            <div class="player-frame">
+                <video src="../assets/video/himeai-demo.mp4" poster="../assets/img/projects/himeai-cover.webp" preload="metadata" playsinline></video>
+
+                <!-- Big play button: the ring draws itself, and the play triangle morphs into a pause sign -->
+                <button class="player-big" type="button" aria-label="Play the demo video">
+                    <svg viewBox="0 0 96 96" aria-hidden="true">
+                        <circle class="player-ring" cx="48" cy="48" r="44"/>
+                        <path class="glyph-l" d="M38 30 L52 38.5 L52 57.5 L38 66 Z"/>
+                        <path class="glyph-r" d="M52 38.5 L66 48 L66 48 L52 57.5 Z"/>
+                    </svg>
+                </button>
+
+                <p class="player-soon">Demo video coming soon</p>
+            </div>
+
+            <!-- Control bar: play/pause, progress (click or drag to seek), time, full screen -->
+            <div class="player-bar">
+                <button class="player-toggle" type="button" aria-label="Play">
+                    <svg viewBox="0 0 96 96" aria-hidden="true">
+                        <path class="glyph-l" d="M38 30 L52 38.5 L52 57.5 L38 66 Z"/>
+                        <path class="glyph-r" d="M52 38.5 L66 48 L66 48 L52 57.5 Z"/>
+                    </svg>
+                </button>
+                <div class="player-track" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <span class="player-fill"></span>
+                </div>
+                <span class="player-time">0:00 / 0:00</span>
+                <button class="player-full" type="button" aria-label="Full screen">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                </button>
+            </div>
+
+            <!-- Shapes the play/pause icons morph between (anime.js morphTo reads these) -->
+            <svg class="player-shapes" viewBox="0 0 96 96" aria-hidden="true">
+                <path id="shape-play-l" d="M38 30 L52 38.5 L52 57.5 L38 66 Z"/>
+                <path id="shape-play-r" d="M52 38.5 L66 48 L66 48 L52 57.5 Z"/>
+                <path id="shape-pause-l" d="M35 30 L45 30 L45 66 L35 66 Z"/>
+                <path id="shape-pause-r" d="M51 30 L61 30 L61 66 L51 66 Z"/>
+            </svg>
+
+            <figcaption>HimeAI running on my PC: chatting with Hime, her expressions, and the offline models.</figcaption>
+        </figure>
 
         <!-- ========== Story: contents list on the left, text on the right ========== -->
         <div class="content">
@@ -143,8 +185,6 @@
 
                 <div class="page-links" data-reveal>
                     <a class="btn btn-primary" href="https://github.com/NeedroN" target="_blank" rel="noopener">View code on GitHub</a>
-                    <!-- Add your demo video URL, then delete data-draft -->
-                    <a data-draft class="btn" href="#" target="_blank" rel="noopener">Watch the demo</a>
                 </div>
             </article>
         </div>

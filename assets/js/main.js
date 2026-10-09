@@ -1,18 +1,35 @@
 /* ========== anime.js v4 (loaded from a CDN, nothing to install) ========== */
 import {
-    animate, createTimeline, createTimer, createDrawable, createLayout, onScroll, splitText, stagger, utils
+    animate, createTimeline, createTimer, createDrawable, createLayout, createScope,
+    onScroll, splitText, stagger, svg, utils, waapi, engine
 } from 'https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js';
 
 window.__animeReady = true;
 
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const preview = document.documentElement.classList.contains('dev');
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-// One motion style for the whole site: same easing, same distance, same speed
-const ease = 'outQuart';
-const reveal = { opacity: [0, 1], y: [16, 0], duration: 700, ease };
+
+/* ========== Engine: one clock for every anime.js animation ========== */
+// Pauses everything when the tab is hidden and resumes from the same frame when you come back.
+engine.pauseOnDocumentHidden = true;
+// A steady 60 fps is smooth for this site and saves battery on 120 Hz screens.
+engine.fps = 60;
+
+// Hardware-accelerated (WAAPI) animations and CSS transitions run outside the engine,
+// so they get the same pause and resume treatment here.
+const pausedNative = new Set();
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        document.getAnimations().forEach(a => {
+            if (a.playState === 'running') { a.pause(); pausedNative.add(a); }
+        });
+    } else {
+        pausedNative.forEach(a => a.play());
+        pausedNative.clear();
+    }
+});
 
 
 /* ========== Drafts: removed from the live site (kept in preview mode) ========== */
@@ -20,13 +37,25 @@ if (!preview) $$('[data-draft]').forEach(el => el.remove());
 
 
 /* ========== Image placeholders ========== */
-// Real image found: fade it in. Missing: remove the broken image so the tile shows.
-// On the live site, missing gallery images are removed, and an empty gallery is hidden.
+// Real image found: fade it in. Missing on the live site: gallery tiles are removed,
+// and a work card is marked "Coming soon" until its thumbnail exists.
 const missingImage = img => {
     const tile = img.parentElement;
     img.remove();
+    if (preview) return;
+
+    const card = tile.closest('.card');
+    if (card) {
+        card.classList.add('is-soon');
+        card.removeAttribute('href');
+        card.setAttribute('aria-disabled', 'true');
+        const link = $('.link', card);
+        if (link) link.textContent = 'Coming soon';
+        return;
+    }
+
     const gallery = tile.closest('.gallery');
-    if (preview || !gallery) return;
+    if (!gallery) return;
     tile.remove();
     if (!gallery.children.length) {
         const section = gallery.closest('section');
@@ -80,49 +109,48 @@ if (navTargets.length) {
 }
 
 
-/* ========== Starfield background (stars twinkle slowly) ========== */
+/* ========== Starfield background: setup (the twinkle runs in the scope below) ========== */
 const canvas = $('#stars');
+const ctx = canvas?.getContext('2d');
+const tints = ['255,255,255', '255,190,230', '200,180,255', '180,220,255'];
+let stars = [], starsW = 0, starsH = 0;
+
+const buildStars = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    starsW = innerWidth;
+    starsH = innerHeight;
+    canvas.width = starsW * dpr;
+    canvas.height = starsH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    stars = Array.from({ length: Math.min(180, (starsW * starsH / 8000) | 0) }, () => ({
+        x: Math.random() * starsW,
+        y: Math.random() * starsH,
+        r: Math.random() * 1.1 + .2,          // size
+        a: Math.random() * .5 + .15,          // brightness
+        s: Math.random() * .0012 + .0003,     // twinkle speed
+        p: Math.random() * 6.28,              // twinkle offset
+        c: tints[(Math.random() * tints.length) | 0]
+    }));
+};
+
+const drawStars = t => {
+    ctx.clearRect(0, 0, starsW, starsH);
+    for (const s of stars) {
+        ctx.fillStyle = `rgba(${s.c},${s.a * (.6 + .4 * Math.sin(t * s.s + s.p))})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, 6.283);
+        ctx.fill();
+    }
+};
+
 if (canvas) {
-    const ctx = canvas.getContext('2d');
-    const tints = ['255,255,255', '255,190,230', '200,180,255', '180,220,255'];
-    let stars = [], w, h;
-
-    const build = () => {
-        const dpr = Math.min(devicePixelRatio || 1, 2);
-        w = innerWidth;
-        h = innerHeight;
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        stars = Array.from({ length: Math.min(180, (w * h / 8000) | 0) }, () => ({
-            x: Math.random() * w,
-            y: Math.random() * h,
-            r: Math.random() * 1.1 + .2,          // size
-            a: Math.random() * .5 + .15,          // brightness
-            s: Math.random() * .0012 + .0003,     // twinkle speed
-            p: Math.random() * 6.28,              // twinkle offset
-            c: tints[(Math.random() * tints.length) | 0]
-        }));
-    };
-
-    const draw = t => {
-        ctx.clearRect(0, 0, w, h);
-        for (const s of stars) {
-            ctx.fillStyle = `rgba(${s.c},${s.a * (.6 + .4 * Math.sin(t * s.s + s.p))})`;
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, 6.283);
-            ctx.fill();
-        }
-    };
-
-    build();
-    addEventListener('resize', () => { build(); draw(0); });
-    if (reduceMotion) draw(0);
-    else createTimer({ loop: true, onUpdate: self => draw(self.currentTime) });
+    buildStars();
+    drawStars(0);
+    addEventListener('resize', () => { buildStars(); drawStars(0); });
 }
 
 
-/* ========== Hero orbit: rings and the two chips travelling on them ========== */
+/* ========== Hero orbit: setup (the movement runs in the scope below) ========== */
 const orbit = $('.orbit');
 const rings = [
     { rx: .47, ry: .16, tilt: -24, speed: 18000, phase: 0 },    // ring 1: code chip
@@ -137,6 +165,17 @@ const ringPoint = (ring, angle) => {
     return [.5 + x * Math.cos(t) - y * Math.sin(t), .5 + x * Math.sin(t) + y * Math.cos(t)];
 };
 
+// Move the chips; they pass behind the photo on the far side of the ring
+const placeSatellites = time => $$('.satellite', orbit).forEach(sat => {
+    const ring = rings[sat.dataset.ring - 1];
+    const angle = ring.phase + time / ring.speed * Math.PI * 2;
+    const [x, y] = ringPoint(ring, angle);
+    const behind = Math.sin(angle) < 0;
+    sat.style.transform = `translate(${x * orbit.offsetWidth}px, ${y * orbit.offsetHeight}px) scale(${behind ? .85 : 1})`;
+    sat.style.zIndex = behind ? 0 : 2;
+    sat.style.opacity = behind ? .55 : 1;
+});
+
 if (orbit) {
     // Draw each ring as an SVG path (viewBox is 400 × 400)
     rings.forEach((ring, i) => {
@@ -147,38 +186,72 @@ if (orbit) {
         }
         $('#ring-' + (i + 1)).setAttribute('d', d + 'Z');
     });
-
-    // Move the chips; they pass behind the photo on the far side of the ring
-    const sats = $$('.satellite', orbit);
-    const place = time => sats.forEach(sat => {
-        const ring = rings[sat.dataset.ring - 1];
-        const angle = ring.phase + (reduceMotion ? 0 : time / ring.speed * Math.PI * 2);
-        const [x, y] = ringPoint(ring, angle);
-        const behind = Math.sin(angle) < 0;
-        sat.style.transform = `translate(${x * orbit.offsetWidth}px, ${y * orbit.offsetHeight}px) scale(${behind ? .85 : 1})`;
-        sat.style.zIndex = behind ? 0 : 2;
-        sat.style.opacity = behind ? .55 : 1;
-    });
     $('.planet', orbit).style.zIndex = 1;
-
-    place(0);
-    if (!reduceMotion) createTimer({ loop: true, onUpdate: self => place(self.currentTime) });
-    addEventListener('resize', () => place(0));
+    placeSatellites(0);
+    addEventListener('resize', () => placeSatellites(0));
 }
 
 
-/* ========== Entrance and scroll motion (skipped for reduced motion) ========== */
-if (!reduceMotion) {
+/* ========== Motion scope ========== */
+// Everything that moves lives in one anime.js scope.
+// - add():     looping motion. Re-runs when "reduce motion" or the screen width changes;
+//              keepTime() makes the loops continue from where they were.
+// - addOnce(): entrances that play once per visit, so a re-run never hides content again.
+const ease = 'outQuart';
+const reveal = { opacity: [0, 1], y: [16, 0], duration: 700, ease };
 
-    /* ----- Hero intro: title rises word by word, then the rest fades in ----- */
+createScope({
+    mediaQueries: {
+        reduce: '(prefers-reduced-motion: reduce)',
+        wide: '(min-width: 901px)'
+    }
+}).add(self => {
+    const { reduce, wide } = self.matches;
+
+    /* ----- Starfield twinkle and orbit (always on, frozen for reduced motion) ----- */
+    if (!reduce) {
+        if (canvas) self.keepTime(() => createTimer({ loop: true, onUpdate: t => drawStars(t.currentTime) }));
+        if (orbit) self.keepTime(() => createTimer({ loop: true, onUpdate: t => placeSatellites(t.currentTime) }));
+    }
+
+    if (reduce) return;
+
+
+    /* ----- Scroll cue: letters slide up and back in, the line draws down; fades as you scroll ----- */
+    if (wide && $('.scroll-cue')) {
+        const { chars } = splitText('.scroll-word', { chars: { wrap: 'clip' } });
+
+        createTimeline({ loop: true, loopDelay: 900, defaults: { duration: 450, delay: stagger(35) } })
+            .add(chars, { y: ['0%', '-110%'], ease: 'inQuart' })
+            .add(chars, { y: ['110%', '0%'], ease: 'outQuart' }, '+=80');
+
+        animate(createDrawable('.scroll-line line'), {
+            draw: ['0 0', '0 1', '1 1'],
+            duration: 1800,
+            ease: 'inOutQuart',
+            loop: true,
+            loopDelay: 300
+        });
+
+        animate('.scroll-cue', {
+            opacity: [1, 0],
+            y: [0, 24],
+            ease: 'linear',
+            autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'start start+=240', sync: .3 })
+        });
+    }
+}).addOnce(self => {
+    if (self.matches.reduce) return;
+
+
+    /* ----- Hero intro: title rises word by word, the orbit rings draw themselves ----- */
     const heroTitle = $('.hero-title');
     if (heroTitle) {
         const { words } = splitText(heroTitle, { words: { wrap: 'clip', class: 'split-word' } });
         utils.set(words, { y: '110%' });
         heroTitle.style.visibility = 'visible';
 
-        const intro = createTimeline({ defaults: { ease } });
-        intro
+        const intro = createTimeline({ defaults: { ease } })
             .add(words, { y: ['110%', '0%'], duration: 900, delay: stagger(40) })
             .add('[data-hero]', { ...reveal, delay: stagger(80) }, '-=600');
 
@@ -188,21 +261,20 @@ if (!reduceMotion) {
                 .add('.planet', { scale: [.9, 1], opacity: [0, 1], duration: 900 }, 200)
                 .add('.satellite', { opacity: [0, 1], duration: 500 }, 800);
         }
+        if ($('.scroll-cue')) intro.add('.scroll-cue > *', { ...reveal, delay: stagger(120) }, '-=200');
     }
 
 
-    /* ----- Single elements fade up once when scrolled into view ----- */
+    /* ----- Fade-ups on scroll: hardware-accelerated (WAAPI), play once ----- */
     $$('[data-reveal]').forEach(el => {
-        animate(el, {
+        waapi.animate(el, {
             ...reveal,
             autoplay: onScroll({ target: el, enter: 'bottom-=80 top', sync: 'play', repeat: false })
         });
     });
 
-
-    /* ----- Groups: children fade up one after another ----- */
     $$('[data-stagger]').forEach(group => {
-        animate(group.children, {
+        waapi.animate(group.children, {
             ...reveal,
             delay: stagger(80),
             autoplay: onScroll({ target: group, enter: 'bottom-=80 top', sync: 'play', repeat: false })
@@ -210,16 +282,34 @@ if (!reduceMotion) {
     });
 
 
+    /* ----- Line icons draw themselves when they come into view ----- */
+    $$('.pillar-icon').forEach(icon => {
+        animate(createDrawable(icon.querySelectorAll('path, rect, circle, polyline')), {
+            draw: ['0 0', '0 1'],
+            duration: 1200,
+            delay: stagger(120, { start: 200 }),
+            ease: 'inOutQuart',
+            autoplay: onScroll({ target: icon, enter: 'bottom-=80 top', sync: 'play', repeat: false })
+        });
+    });
+
+
     /* ----- About timeline: the line fills in as you scroll through it ----- */
-    const line = $('.timeline-line .draw');
-    if (line) {
-        animate(createDrawable(line), {
+    if ($('.timeline-line .draw')) {
+        animate(createDrawable('.timeline-line .draw'), {
             draw: ['0 0', '0 1'],
             ease: 'linear',
             autoplay: onScroll({ target: '.timeline', enter: 'center top', leave: 'center bottom', sync: .4 })
         });
     }
-}
+
+
+    /* ----- Video player: frame settles in, the play ring draws itself ----- */
+    if ($('.player')) {
+        waapi.animate('.player-frame', { opacity: [0, 1], scale: [.97, 1], duration: 900, ease });
+        animate(createDrawable('.player-ring'), { draw: ['0 0', '0 1'], duration: 1400, delay: 300, ease: 'inOutQuart' });
+    }
+});
 
 
 /* ========== Work filter: counts, and cards rearrange smoothly (anime.js layout) ========== */
@@ -237,9 +327,10 @@ if (grid && filters) {
     });
     if (chips.filter(c => !c.hidden && c.dataset.filter !== 'all').length < 2) filters.hidden = true;
 
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const layout = createLayout(grid, {
         children: '.card',
-        duration: reduceMotion ? 0 : 500,
+        duration: reduce ? 0 : 500,
         ease: 'inOutQuart',
         enterFrom: { opacity: 0 },
         leaveTo: { opacity: 0 }
@@ -254,6 +345,109 @@ if (grid && filters) {
             });
         });
     }));
+}
+
+
+/* ========== Video player (HimeAI demo) ========== */
+const player = $('[data-player]');
+if (player) {
+    const video = $('video', player);
+    const bigBtn = $('.player-big', player);
+    const toggleBtn = $('.player-toggle', player);
+    const track = $('.player-track', player);
+    const fill = $('.player-fill', player);
+    const time = $('.player-time', player);
+    const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const fmt = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
+    const update = () => {
+        const p = video.duration ? video.currentTime / video.duration : 0;
+        utils.set(fill, { scaleX: p });
+        time.textContent = `${fmt(video.currentTime)} / ${fmt(video.duration)}`;
+        track.setAttribute('aria-valuenow', Math.round(p * 100));
+    };
+
+    // Smooth progress bar while playing (runs on the engine, so it pauses with the tab)
+    const ticker = createTimer({ autoplay: false, loop: true, onUpdate: update });
+
+    // Play and pause icons: each half of the triangle morphs into one pause bar
+    const morphIcons = playing => {
+        const shape = playing ? 'pause' : 'play';
+        $$('.glyph-l, .glyph-r', player).forEach(path => {
+            const side = path.classList.contains('glyph-l') ? 'l' : 'r';
+            animate(path, { d: svg.morphTo(`#shape-${shape}-${side}`), duration: reduce() ? 0 : 350, ease: 'inOutQuad' });
+        });
+    };
+
+    const setPlaying = playing => {
+        player.classList.toggle('is-playing', playing);
+        toggleBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+        bigBtn.setAttribute('aria-label', playing ? 'Pause the demo video' : 'Play the demo video');
+        morphIcons(playing);
+        playing ? ticker.play() : (ticker.pause(), update());
+
+        // Big button: steps aside while playing, comes back (ring redrawn) when paused
+        if (reduce()) {
+            bigBtn.style.opacity = playing ? 0 : 1;
+        } else {
+            waapi.animate(bigBtn, { opacity: playing ? 0 : 1, scale: playing ? 1.15 : [.85, 1], duration: 400, ease });
+            if (!playing) animate(createDrawable($('.player-ring', bigBtn)), { draw: ['0 0', '0 1'], duration: 700, ease: 'inOutQuart' });
+        }
+    };
+
+    const togglePlay = () => video.paused ? video.play() : video.pause();
+    bigBtn.addEventListener('click', togglePlay);
+    toggleBtn.addEventListener('click', togglePlay);
+    video.addEventListener('click', togglePlay);
+    video.addEventListener('play', () => setPlaying(true));
+    video.addEventListener('pause', () => setPlaying(false));
+    video.addEventListener('loadedmetadata', update);
+    video.addEventListener('seeked', update);
+
+    // No video file yet: show "coming soon" (with the file name in preview mode)
+    const missing = () => {
+        player.classList.add('is-missing');
+        if (preview) $('.player-soon', player).textContent = 'add assets/video/himeai-demo.mp4';
+    };
+    video.addEventListener('error', missing);
+    if (video.error) missing();
+
+    // Seek by clicking or dragging along the bar, or with the arrow keys
+    const seekTo = e => {
+        const r = track.getBoundingClientRect();
+        video.currentTime = utils.clamp((e.clientX - r.left) / r.width, 0, 1) * (video.duration || 0);
+        update();
+    };
+    track.addEventListener('pointerdown', e => {
+        track.setPointerCapture(e.pointerId);
+        seekTo(e);
+        track.addEventListener('pointermove', seekTo);
+        track.addEventListener('pointerup', () => track.removeEventListener('pointermove', seekTo), { once: true });
+    });
+    track.addEventListener('keydown', e => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        video.currentTime += e.key === 'ArrowRight' ? 5 : -5;
+        update();
+    });
+
+    // Full screen
+    $('.player-full', player).addEventListener('click', () => {
+        if (video.requestFullscreen) video.requestFullscreen();
+        else video.webkitEnterFullscreen?.();
+    });
+
+    // Switching tabs pauses the video; coming back resumes it from the same spot
+    let resumeOnReturn = false;
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            resumeOnReturn = !video.paused;
+            if (resumeOnReturn) video.pause();
+        } else if (resumeOnReturn) {
+            video.play();
+            resumeOnReturn = false;
+        }
+    });
 }
 
 

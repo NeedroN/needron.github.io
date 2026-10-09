@@ -496,6 +496,38 @@ ul, ol {
 .sat-code { color: var(--sky); }
 .sat-art { color: var(--pink); }
 
+/* Scroll cue at the bottom of the hero */
+.scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    translate: -50% 0;
+    color: var(--text-dim);
+    font: 500 .72rem/1 var(--font-mono);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.scroll-cue:hover {
+    color: var(--text);
+}
+
+.scroll-line {
+    width: 2px;
+    height: 48px;
+    overflow: visible;
+}
+
+.scroll-line line {
+    stroke: var(--violet);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
 @media (max-width: 900px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -505,6 +537,10 @@ ul, ol {
     .orbit {
         max-width: 340px;
         order: -1;
+    }
+
+    .scroll-cue {
+        display: none;
     }
 }
 
@@ -663,6 +699,21 @@ a.card:hover {
 .card.featured {
     grid-column: span 2;
     flex-direction: row;
+}
+
+/* A card whose thumbnail doesn't exist yet (live site): not clickable, marked "Coming soon" */
+.card.is-soon {
+    pointer-events: none;
+    border-style: dashed;
+    background: transparent;
+}
+
+.card.is-soon .card-media {
+    opacity: .5;
+}
+
+.card.is-soon .link {
+    color: var(--text-dim);
 }
 
 /* When it's the only card, it takes the full row */
@@ -999,6 +1050,19 @@ a.card:hover {
     font-weight: 500;
 }
 
+.socials a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color .2s;
+}
+
+.socials svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
 .socials a:hover {
     color: var(--text);
 }
@@ -1091,6 +1155,12 @@ a.card:hover {
     margin-bottom: var(--space-2);
 }
 
+.page-logo img {
+    width: auto;
+    height: clamp(80px, 12vw, 150px);
+    margin-left: -2%;           /* the logo's glow adds empty space on the left */
+}
+
 .page-hero .intro {
     font-size: clamp(1.1rem, 1.8vw, 1.3rem);
 }
@@ -1129,6 +1199,185 @@ a.card:hover {
     aspect-ratio: 16 / 9;
     border: 1px solid var(--line);
     border-radius: var(--r);
+}
+
+/* ----- Video player (HimeAI demo) ----- */
+.player {
+    position: relative;
+    margin: 0;
+}
+
+.player-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: #000;
+}
+
+.player video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #000;
+    cursor: pointer;
+}
+
+.player-big {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 96px;
+    height: 96px;
+    margin: -48px 0 0 -48px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(10, 8, 20, .55);
+    color: var(--text);
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.player-big:hover {
+    background: rgba(169, 139, 255, .25);
+}
+
+.player-big svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.player-ring {
+    fill: none;
+    stroke: var(--violet);
+    stroke-width: 2;
+}
+
+.player-big path,
+/* Hidden shapes the icons morph between (kept in the page so the browser can measure them) */
+.player-shapes {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* While playing, the big button steps aside */
+.player.is-playing .player-big {
+    pointer-events: none;
+}
+
+.player-soon {
+    position: absolute;
+    left: 50%;
+    bottom: var(--space-3);
+    translate: -50% 0;
+    padding: 4px 12px;
+    border-radius: var(--r-sm);
+    background: rgba(10, 8, 20, .7);
+    color: var(--text-soft);
+    font: 500 .8rem var(--font-mono);
+    white-space: nowrap;
+    display: none;
+}
+
+.player.is-missing .player-soon {
+    display: block;
+}
+
+.player.is-missing .player-big,
+.player.is-missing .player-bar {
+    display: none;
+}
+
+.player.is-missing video {
+    cursor: default;
+}
+
+.player-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.player-bar button {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color .2s;
+}
+
+.player-bar button:hover {
+    border-color: var(--violet);
+}
+
+.player-bar svg {
+    width: 18px;
+    height: 18px;
+}
+
+.player-toggle svg {
+    width: 28px;
+    height: 28px;
+}
+
+.player-full path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Progress bar: the fill is scaled (not resized), which the GPU handles smoothly */
+.player-track {
+    position: relative;
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    cursor: pointer;
+}
+
+.player-track::before {
+    content: "";
+    position: absolute;
+    inset: -12px 0;              /* bigger hit area for touch */
+}
+
+.player-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--violet);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+.player-time {
+    min-width: 9ch;
+    color: var(--text-dim);
+    font: 500 .8rem var(--font-mono);
+    text-align: right;
+}
+
+.player figcaption {
+    margin-top: var(--space-2);
+    color: var(--text-dim);
+    font-size: .92rem;
 }
 
 .cover.tall {
@@ -1367,6 +1616,10 @@ a.card:hover {
     opacity: 0;
 }
 
+.js .scroll-cue > * {
+    opacity: 0;
+}
+
 .js .hero-title {
     visibility: hidden;
 }
@@ -1379,7 +1632,8 @@ a.card:hover {
 
     .js [data-reveal],
     .js [data-stagger] > *,
-    .js .hero [data-hero] {
+    .js .hero [data-hero],
+    .js .scroll-cue > * {
         opacity: 1;
     }
 
