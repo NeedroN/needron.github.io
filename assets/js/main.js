@@ -217,27 +217,27 @@ createScope({
     if (reduce) return;
 
 
-    /* ----- Scroll cue: letters slide up and back in, the line draws down; fades as you scroll ----- */
+    /* ----- Scroll cue: the word rolls upward letter by letter, a short line travels down the track ----- */
+    // splitText's clone puts a copy of each letter underneath; sliding both up by 100% makes the word roll.
     if (wide && $('.scroll-cue')) {
-        const { chars } = splitText('.scroll-word', { chars: { wrap: 'clip' } });
-
-        createTimeline({ loop: true, loopDelay: 900, defaults: { duration: 450, delay: stagger(35) } })
-            .add(chars, { y: ['0%', '-110%'], ease: 'inQuart' })
-            .add(chars, { y: ['110%', '0%'], ease: 'outQuart' }, '+=80');
+        const { chars } = splitText('.scroll-word', { chars: { wrap: 'clip', clone: 'bottom' } });
+        createTimeline({ loop: true, loopDelay: 1400 })
+            .add(chars, { y: ['0%', '-100%'], duration: 700, ease: 'inOut(3)', delay: stagger(45) });
 
         animate(createDrawable('.scroll-line line'), {
-            draw: ['0 0', '0 1', '1 1'],
-            duration: 1800,
-            ease: 'inOutQuart',
+            draw: ['0 .3', '.7 1'],
+            duration: 1600,
+            ease: 'inOutSine',
             loop: true,
-            loopDelay: 300
+            loopDelay: 500
         });
 
+        // Fades and drops away as the hero scrolls up (anime.js onScroll, synced to the scrollbar)
         animate('.scroll-cue', {
             opacity: [1, 0],
             y: [0, 24],
             ease: 'linear',
-            autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'start start+=240', sync: .3 })
+            autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'start start+=240', sync: .25 })
         });
     }
 }).addOnce(self => {
@@ -265,32 +265,33 @@ createScope({
     }
 
 
-    /* ----- Fade-ups on scroll: hardware-accelerated (WAAPI), play once ----- */
+    /* ----- Scroll reveals: play once when an element scrolls into view (anime.js onScroll events) ----- */
+    // Anything already on screen or scrolled past when the page loads (a reload halfway down,
+    // or a jump from the menu) plays straight away, so nothing is left invisible.
+    const playOnEnter = (target, anim) => {
+        const box = target.getBoundingClientRect();
+        if (box.top < innerHeight - 80) return anim.play();
+        onScroll({ target, enter: 'bottom-=80 top', repeat: false, onEnter: () => anim.play() });
+    };
+
+    // Fade-ups: hardware-accelerated (WAAPI)
     $$('[data-reveal]').forEach(el => {
-        waapi.animate(el, {
-            ...reveal,
-            autoplay: onScroll({ target: el, enter: 'bottom-=80 top', sync: 'play', repeat: false })
-        });
+        playOnEnter(el, waapi.animate(el, { ...reveal, autoplay: false }));
     });
 
     $$('[data-stagger]').forEach(group => {
-        waapi.animate(group.children, {
-            ...reveal,
-            delay: stagger(80),
-            autoplay: onScroll({ target: group, enter: 'bottom-=80 top', sync: 'play', repeat: false })
-        });
+        playOnEnter(group, waapi.animate(group.children, { ...reveal, delay: stagger(80), autoplay: false }));
     });
 
-
-    /* ----- Line icons draw themselves when they come into view ----- */
+    // Line icons draw themselves
     $$('.pillar-icon').forEach(icon => {
-        animate(createDrawable(icon.querySelectorAll('path, rect, circle, polyline')), {
+        playOnEnter(icon, animate(createDrawable(icon.querySelectorAll('path, rect, circle, polyline')), {
             draw: ['0 0', '0 1'],
             duration: 1200,
             delay: stagger(120, { start: 200 }),
             ease: 'inOutQuart',
-            autoplay: onScroll({ target: icon, enter: 'bottom-=80 top', sync: 'play', repeat: false })
-        });
+            autoplay: false
+        }));
     });
 
 

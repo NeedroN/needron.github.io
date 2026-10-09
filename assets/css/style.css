@@ -520,6 +520,8 @@ ul, ol {
     width: 2px;
     height: 48px;
     overflow: visible;
+    background: var(--line);       /* faint track the moving line travels along */
+    border-radius: 2px;
 }
 
 .scroll-line line {
@@ -1057,10 +1059,12 @@ a.card:hover {
     transition: color .2s;
 }
 
+/* Brand icons are white; the label beside them stays soft until hover */
 .socials svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    fill: #fff;
 }
 
 .socials a:hover {
