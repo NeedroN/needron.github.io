@@ -211,21 +211,30 @@ if (canvas && document.documentElement.scrollHeight > innerHeight * 1.6) {
         .map(c => `<i class="meteor" style="--tint:${c};--len:${(160 + Math.random() * 220) | 0}px"><b></b></i>`).join('');
     canvas.after(skyLayer);
 
-    // Scroll progress comet (right edge) and the cloud bank it breaks through at the bottom of the page
-    const puffs = (n, from, to) => Array.from({ length: n }, (_, i) => {
-        const w = 26 + Math.random() * 22;
-        const left = from + (to - from) * (i / (n - 1 || 1)) - w / 2 + Math.random() * 6 - 3;
-        return `<i style="left:${left.toFixed(1)}vw;width:${w.toFixed(1)}vw;bottom:${(-8 - Math.random() * 10).toFixed(1)}vh"></i>`;
-    }).join('');
+    // Scroll progress comet (right edge). It grows as you read, breaks through the cloud bank
+    // that hides the footer, then crashes into the bottom of the page.
     document.body.insertAdjacentHTML('beforeend', `
-        <div class="clouds clouds-back" aria-hidden="true">${puffs(7, -5, 105)}<b class="cloud-glow"></b></div>
-        <div class="comet-track" aria-hidden="true"><div class="comet"><i class="comet-tail"></i><i class="comet-head"></i></div></div>
-        <div class="clouds clouds-front" aria-hidden="true">
-            <div class="cloud-half">${puffs(4, -8, 46)}</div>
-            <div class="cloud-half">${puffs(4, 54, 108)}</div>
-        </div>
-        <div class="cloud-flash" aria-hidden="true"></div>
-        <div class="cloud-ring" aria-hidden="true"></div>`);
+        <div class="comet-track" aria-hidden="true"><div class="comet"><i class="comet-tail"></i><i class="comet-head"></i><i class="comet-ring"></i></div></div>
+        <div class="cloud-flash" aria-hidden="true"></div>`);
+
+    // Cloud bank over the footer: a back layer, and a front layer in two halves that part
+    const footer = $('.footer');
+    if (footer) {
+        const puffs = (n, from, to) => Array.from({ length: n }, (_, i) => {
+            const w = 24 + Math.random() * 20;
+            const left = from + (to - from) * (i / (n - 1 || 1)) - w / 2 + Math.random() * 6 - 3;
+            return `<i style="left:${left.toFixed(1)}%;width:${w.toFixed(1)}%;top:${(Math.random() * 40) | 0}px"></i>`;
+        }).join('');
+        footer.insertAdjacentHTML('afterbegin', `
+            <div class="footer-sky" aria-hidden="true">
+                <div class="clouds clouds-back">${puffs(7, -4, 104)}</div>
+                <div class="clouds clouds-front">
+                    <div class="cloud-half">${puffs(4, -6, 46)}<b class="cloud-base"></b></div>
+                    <div class="cloud-half">${puffs(4, 54, 106)}<b class="cloud-base"></b></div>
+                    <b class="cloud-glow"></b>
+                </div>
+            </div>`);
+    }
 }
 
 
@@ -506,6 +515,350 @@ if (orbit) {
 }
 
 
+/* ========== Meteor crash: the progress comet hits the bottom of the page and the footer blows apart ========== */
+// Runs when you reach the very end of the page. The comet swells, slams into the ground, and the footer's own
+// letters and logo are the debris: split up (anime.js splitText), blasted away from the impact with a fireball,
+// shock rings, sparks, rocks and a dust cloud (drawn on a canvas), then rewound back into place.
+function meteorCrash(done) {
+    const footer = $('.footer'), track = $('.comet-track'), head = $('.comet-head');
+    const W = root.clientWidth, H = innerHeight, big = Math.hypot(W, H);
+    const fr = footer.getBoundingClientRect(), hr = head.getBoundingClientRect();
+    const sx = hr.left + hr.width / 2, sy = hr.top + hr.height / 2;
+
+    // It falls along its tail, down and to the left, into the floor of the page
+    const tilt = (utils.get($('.comet'), 'rotate', false) || 0) - 5;
+    const dirX = -Math.sin(tilt * Math.PI / 180), dirY = Math.cos(tilt * Math.PI / 180);
+    const iy = Math.min(H, fr.bottom) - 22;
+    const reach = Math.max(40, (iy - sy) / Math.max(dirY, .3));
+    const ix = utils.clamp(sx + dirX * reach, 40, W - 40);
+
+    // Canvas over the last screen of the page, so it scrolls with the footer
+    const cv = document.createElement('canvas');
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.className = 'impact';
+    cv.setAttribute('aria-hidden', 'true');
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    cv.style.cssText = `top:${scrollY}px;width:${W}px;height:${H}px`;
+    document.body.append(cv);
+    const c = cv.getContext('2d');
+    c.scale(dpr, dpr);
+    track.classList.add('crashed');
+
+    // Debris: every letter in the footer, and the wordmark cut into triangles
+    const splits = $$('p, h2, li, .footer-bottom > *', footer)
+        .map(el => splitText(el, { words: { class: 'debris-word' }, chars: { class: 'debris' } }));
+    const pieces = $$('.debris', footer).map(el => {
+        const r = el.getBoundingClientRect();
+        return { el, x: r.left + r.width / 2, y: r.top + r.height / 2, heavy: false };
+    });
+    const logo = $('.footer-wordmark', footer);
+    const shards = [];
+    if (logo) {
+        const r = logo.getBoundingClientRect(), cols = 4, rows = 2;
+        for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) for (const k of [0, 1]) {
+            const [x0, x1, y0, y1] = [i / cols, (i + 1) / cols, j / rows, (j + 1) / rows].map(v => v * 100);
+            const pts = k ? [[x0, y0], [x1, y0], [x1, y1]] : [[x0, y0], [x0, y1], [x1, y1]];
+            const cx = pts.reduce((a, p) => a + p[0], 0) / 3, cy = pts.reduce((a, p) => a + p[1], 0) / 3;
+            const el = logo.cloneNode();
+            el.className = 'logo-shard';
+            el.alt = '';
+            el.style.cssText = `left:${r.left - fr.left - footer.clientLeft}px;top:${r.top - fr.top - footer.clientTop}px;` +
+                `width:${r.width}px;height:${r.height}px;transform-origin:${cx}% ${cy}%;` +
+                `clip-path:polygon(${pts.map(p => p[0] + '% ' + p[1] + '%').join(',')})`;
+            footer.append(el);
+            shards.push({ el, x: r.left + r.width * cx / 100, y: r.top + r.height * cy / 100, heavy: true });
+        }
+        logo.style.visibility = 'hidden';
+    }
+
+    // Each piece flies up and away from the impact: harder the closer it was, then gravity pulls it back
+    // (never below the bottom of the page, so the page doesn't grow)
+    const fling = p => {
+        const dx = p.x - ix, dy = p.y - iy, d = Math.hypot(dx, dy) || 1;
+        const power = utils.clamp(1.2 - d / (W * .8), .2, 1);
+        let ux = dx / d, uy = Math.min(dy / d, -.2) - .45;
+        const n = Math.hypot(ux, uy);
+        ux /= n;
+        uy /= n;
+        const v = (p.heavy ? 380 : 560) * power * utils.random(.7, 1.3, 2);
+        p.tx = ux * v;
+        p.ty = uy * v;
+        p.fall = utils.clamp(H - 14 - (p.y + p.ty), 0, utils.random(80, 320));
+        p.spin = utils.random(-1, 1, 2) * (p.heavy ? 160 : 720);
+        p.wait = d / big * 260;          // the shock wave reaches far pieces a little later
+        p.burnt = d < 70;                // right at the impact: vaporised
+    };
+    const all = pieces.concat(shards);
+    all.forEach(fling);
+
+    // What the canvas draws, driven by the timeline below
+    const s = { charge: 0, dive: 0, flash: 0, fire: 0, ring: 0, ring2: 0, rays: 0, glow: 0, hit: false };
+    const sparks = [], rocks = [], dust = [], embers = [], rays = [];
+    const R = (a, b) => a + Math.random() * (b - a);
+
+    function boom() {
+        s.hit = true;
+        footer.classList.add('scorched');
+        for (let i = 0; i < 200; i++) {
+            const a = -Math.PI * R(.03, .97), v = R(240, 1350);
+            sparks.push({ x: ix, y: iy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: R(.5, 1.7), w: R(1, 2.8), blue: Math.random() < .4 });
+        }
+        for (let i = 0; i < 46; i++) {
+            const a = -Math.PI * R(.05, .95), v = R(200, 900), size = R(4, 15), sides = 3 + (Math.random() * 3 | 0);
+            const pts = Array.from({ length: sides }, (_, k) => {
+                const t = k / sides * Math.PI * 2;
+                return [Math.cos(t) * size * R(.5, 1.2), Math.sin(t) * size * R(.5, 1.2)];
+            });
+            rocks.push({ x: ix, y: iy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, rot: R(0, 6), vr: R(-12, 12), pts, t: 0, life: R(1.2, 2.2) });
+        }
+        // Dust: a ring rolling out along the ground, and a column that rises and spreads into a mushroom cap
+        for (let i = 0; i < 16; i++) {
+            const side = i % 2 ? 1 : -1;
+            dust.push({ x: ix, y: iy - R(0, 20), vx: side * R(160, 760), vy: -R(10, 70), r: R(26, 50), gr: R(60, 130), t: 0, life: R(2.4, 3.6), up: 6 });
+        }
+        for (let i = 0; i < 14; i++) {
+            dust.push({ x: ix + R(-30, 30), y: iy - R(0, 30), vx: R(-70, 70), vy: -R(160, 460), r: R(30, 52), gr: R(50, 110), t: 0, life: R(2.8, 3.8), up: 30 });
+        }
+        for (let i = 0; i < 70; i++) {
+            embers.push({ x: ix + R(-60, 60), y: iy - R(0, 40), vx: R(-160, 160), vy: -R(40, 260), t: 0, life: R(1.6, 3.4), r: R(.8, 2.2), ph: R(0, 6) });
+        }
+        for (let i = 0; i < 16; i++) rays.push({ a: -Math.PI * R(.04, .96), len: R(.35, 1), w: R(6, 22) });
+
+        // The page shakes (everything except the fixed layers)
+        animate($$('main, .footer'), {
+            x: [0, -12, 10, -8, 6, -4, 2, 0],
+            y: [0, 7, -9, 6, -4, 3, -1, 0],
+            duration: 620,
+            ease: 'linear',
+            onComplete: () => $$('main, .footer').forEach(el => el.style.transform = '')
+        });
+    }
+
+    // One streak of light, as in the rest of the site: white head, blue then pink tail
+    function meteor(x, y, len, width, glow) {
+        const tx = x - dirX * len, ty = y - dirY * len;
+        const g = c.createLinearGradient(x, y, tx, ty);
+        g.addColorStop(0, 'rgba(255,255,255,1)');
+        g.addColorStop(.25, 'rgba(170,225,255,.7)');
+        g.addColorStop(.65, 'rgba(255,160,215,.3)');
+        g.addColorStop(1, 'rgba(255,160,215,0)');
+        c.strokeStyle = g;
+        c.lineWidth = width;
+        c.lineCap = 'round';
+        c.beginPath();
+        c.moveTo(x, y);
+        c.lineTo(tx, ty);
+        c.stroke();
+        const h = c.createRadialGradient(x, y, 0, x, y, glow);
+        h.addColorStop(0, 'rgba(255,255,255,1)');
+        h.addColorStop(.3, 'rgba(200,235,255,.75)');
+        h.addColorStop(.6, 'rgba(255,170,220,.25)');
+        h.addColorStop(1, 'rgba(255,170,220,0)');
+        c.fillStyle = h;
+        c.beginPath();
+        c.arc(x, y, glow, 0, 7);
+        c.fill();
+    }
+
+    function blob(x, y, r, stops) {
+        const g = c.createRadialGradient(x, y, 0, x, y, r);
+        stops.forEach(([at, col]) => g.addColorStop(at, col));
+        c.fillStyle = g;
+        c.beginPath();
+        c.arc(x, y, r, 0, 7);
+        c.fill();
+    }
+
+    let last = performance.now();
+    function draw() {
+        const now = performance.now(), dt = Math.min((now - last) / 1000, .05);
+        last = now;
+        c.clearRect(0, 0, W, H);
+        c.globalCompositeOperation = 'lighter';
+
+        // Before the hit: the comet swells, then falls the last stretch
+        if (!s.hit) {
+            const x = sx + (ix - sx) * s.dive, y = sy + (iy - sy) * s.dive;
+            meteor(x, y, 340 + 160 * s.charge + 420 * s.dive, 5 + 6 * s.charge + 6 * s.dive, 22 + 26 * s.charge + 30 * s.dive);
+            return;
+        }
+
+        // Glowing crater
+        if (s.glow > .01) {
+            c.save();
+            c.translate(ix, iy);
+            c.scale(1, .45);
+            blob(0, 0, 320, [[0, `rgba(255,170,90,${.75 * s.glow})`], [.35, `rgba(255,90,50,${.4 * s.glow})`], [1, 'rgba(160,30,40,0)']]);
+            c.restore();
+        }
+
+        // Dust: dark red-brown, lit orange from below while it's fresh
+        c.globalCompositeOperation = 'source-over';
+        for (const d of dust) {
+            d.t += dt;
+            if (d.t > d.life) continue;
+            const k = d.t / d.life, drag = Math.exp(-1.8 * dt);
+            d.vx *= drag;
+            d.vy = d.vy * drag - d.up * dt;
+            d.x += d.vx * dt;
+            d.y += d.vy * dt;
+            d.r += d.gr * dt;
+            const a = Math.min(1, d.t * 6) * (1 - k) ** 1.3 * .5, hot = (1 - k) ** 4;
+            const col = [110 + 145 * hot, 46 + 90 * hot, 52 + 20 * hot].map(v => v | 0).join(',');
+            blob(d.x, d.y, d.r, [[0, `rgba(${col},${a})`], [.6, `rgba(${col},${a * .55})`], [1, `rgba(${col},0)`]]);
+        }
+        c.globalCompositeOperation = 'lighter';
+
+        // Fireball, squashed against the ground
+        if (s.fire > .01) {
+            c.save();
+            c.translate(ix, iy);
+            c.scale(1, .62);
+            blob(0, 0, s.fire * Math.min(W * .42, H * .9), [
+                [0, `rgba(255,255,255,${s.fire})`], [.18, `rgba(255,244,210,${s.fire})`],
+                [.42, `rgba(255,160,70,${.85 * s.fire})`], [.7, `rgba(230,70,50,${.4 * s.fire})`], [1, 'rgba(160,30,60,0)']
+            ]);
+            c.restore();
+        }
+
+        // Light rays bursting out of the impact
+        if (s.rays > .01) {
+            for (const r of rays) {
+                const L = big * .6 * r.len * (.5 + .5 * (1 - s.rays));
+                const ex = ix + Math.cos(r.a) * L, ey = iy + Math.sin(r.a) * L;
+                const nx = -Math.sin(r.a) * r.w, ny = Math.cos(r.a) * r.w;
+                const g = c.createLinearGradient(ix, iy, ex, ey);
+                g.addColorStop(0, `rgba(255,240,220,${.7 * s.rays})`);
+                g.addColorStop(1, 'rgba(255,170,120,0)');
+                c.fillStyle = g;
+                c.beginPath();
+                c.moveTo(ix + nx, iy + ny);
+                c.lineTo(ex, ey);
+                c.lineTo(ix - nx, iy - ny);
+                c.fill();
+            }
+        }
+
+        // Shock rings rolling out across the ground
+        for (const [p, col, w] of [[s.ring, '255,230,200', 16], [s.ring2, '255,130,90', 10]]) {
+            if (p <= 0 || p >= 1) continue;
+            c.strokeStyle = `rgba(${col},${(1 - p) ** 1.4})`;
+            c.lineWidth = 2 + w * (1 - p);
+            c.beginPath();
+            c.ellipse(ix, iy, p * big * .8, p * big * .8 * .2, 0, 0, 7);
+            c.stroke();
+        }
+
+        // Sparks: short streaks along their path, blue and orange like the film
+        for (const p of sparks) {
+            p.t += dt;
+            if (p.t > p.life) continue;
+            p.vy += 900 * dt;
+            p.vx *= Math.exp(-.8 * dt);
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            const a = (1 - p.t / p.life) ** 1.2;
+            c.strokeStyle = p.blue ? `rgba(150,170,255,${a})` : `rgba(255,${190 + (p.w * 20 | 0)},120,${a})`;
+            c.lineWidth = p.w;
+            c.beginPath();
+            c.moveTo(p.x, p.y);
+            c.lineTo(p.x - p.vx * .035, p.y - p.vy * .035);
+            c.stroke();
+        }
+
+        // Embers: blue specks floating up and twinkling
+        for (const e of embers) {
+            e.t += dt;
+            if (e.t > e.life) continue;
+            e.vx *= Math.exp(-1.2 * dt);
+            e.vy = e.vy * Math.exp(-.9 * dt) - 14 * dt;
+            e.x += e.vx * dt;
+            e.y += e.vy * dt;
+            const a = (1 - e.t / e.life) * (.55 + .45 * Math.sin(e.t * 14 + e.ph));
+            c.fillStyle = `rgba(140,160,255,${a})`;
+            c.beginPath();
+            c.arc(e.x, e.y, e.r, 0, 7);
+            c.fill();
+        }
+
+        // Rocks: dark shards with a hot rim, tumbling
+        c.globalCompositeOperation = 'source-over';
+        for (const r of rocks) {
+            r.t += dt;
+            if (r.t > r.life) continue;
+            r.vy += 1100 * dt;
+            r.x += r.vx * dt;
+            r.y += r.vy * dt;
+            r.rot += r.vr * dt;
+            c.save();
+            c.translate(r.x, r.y);
+            c.rotate(r.rot);
+            c.globalAlpha = Math.min(1, (r.life - r.t) * 3);
+            c.fillStyle = '#1a1018';
+            c.strokeStyle = 'rgba(255,150,80,.9)';
+            c.lineWidth = 1.5;
+            c.beginPath();
+            r.pts.forEach(([px, py], k) => k ? c.lineTo(px, py) : c.moveTo(px, py));
+            c.closePath();
+            c.fill();
+            c.stroke();
+            c.restore();
+        }
+        c.globalAlpha = 1;
+
+        // White-out flash
+        if (s.flash > .01) {
+            c.fillStyle = `rgba(255,246,236,${.9 * s.flash})`;
+            c.fillRect(0, 0, W, H);
+        }
+    }
+
+    const loop = createTimer({ loop: true, onUpdate: draw });
+    const HIT = 380;
+    const tl = createTimeline({ onComplete: finish })
+        .add(s, { charge: [0, 1], duration: 240, ease: 'inOutSine' }, 0)
+        .add(s, { dive: [0, 1], duration: 140, ease: 'in(3)' }, 240)
+        .call(boom, HIT)
+        .add(s, { flash: [{ to: 1, duration: 40 }, { to: 0, duration: 650, ease: 'outQuad' }] }, HIT)
+        .add(s, { fire: [{ to: 1, duration: 260, ease: 'outCubic' }, { to: 0, duration: 1500, ease: 'inQuad' }] }, HIT)
+        .add(s, { rays: [{ to: 1, duration: 90 }, { to: 0, duration: 900, ease: 'outQuad' }] }, HIT)
+        .add(s, { ring: [0, 1], duration: 1100, ease: 'outCubic' }, HIT)
+        .add(s, { ring2: [0, 1], duration: 1500, ease: 'outCubic' }, HIT + 110)
+        .add(s, { glow: [{ to: 1, duration: 120 }, { to: 0, duration: 3200, ease: 'inOutSine' }] }, HIT);
+
+    // Blast: each piece flies on its own arc
+    all.forEach(p => tl.add(p.el, {
+        x: [{ to: p.tx, duration: 700, ease: 'outCubic' }, { to: p.tx * 1.15, duration: 1100, ease: 'linear' }],
+        y: [{ to: p.ty, duration: 700, ease: 'outCubic' }, { to: p.ty + p.fall, duration: 1100, ease: 'inQuad' }],
+        rotate: { to: p.spin, duration: 1800, ease: 'outQuart' },
+        opacity: p.burnt ? { to: 0, duration: 260 } : { to: 1, duration: 1 }
+    }, HIT + p.wait));
+
+    // Rewind: every piece is pulled back into place, then the letters cool down
+    tl.add(all.map(p => p.el), {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        opacity: 1,
+        duration: 1000,
+        ease: 'inOut(4)',
+        delay: () => utils.random(0, 500)
+    }, HIT + 2500)
+        .call(() => footer.classList.remove('scorched'), HIT + 3100)
+        .call(() => {}, HIT + 4300);
+
+    function finish() {
+        loop.cancel();
+        cv.remove();
+        shards.forEach(p => p.el.remove());
+        logo?.style.removeProperty('visibility');
+        splits.forEach(sp => sp.revert());
+        done();
+    }
+}
+
+
 /* ========== Motion scope ========== */
 // Everything that moves lives in one anime.js scope.
 // - add():     looping motion. Re-runs when "reduce motion" or the screen width changes;
@@ -522,6 +875,7 @@ skyReady.then(() => createScope({
     }
 }).add(self => {
     const { reduce, wide } = self.matches;
+    let stopCrash;
 
     /* ----- Starfield twinkle and orbit (always on, frozen for reduced motion) ----- */
     if (!reduce) {
@@ -557,30 +911,61 @@ skyReady.then(() => createScope({
     }
 
 
-    /* ----- Scroll progress comet: travels down the right edge as you read; near the end of the page ----- */
-    // the clouds rise, light up from inside as it dives in, then part as it breaks through (synced to the scrollbar).
+    /* ----- Scroll progress comet: travels down the right edge as you read, growing as it falls ----- */
+    // When the footer comes up, the comet dives into the clouds covering it, lights them from inside and
+    // breaks through. They part to reveal the footer while the comet swings toward the middle of the page.
+    // Everything here is synced to the scrollbar (anime.js onScroll), so it rewinds when you scroll back up.
     const track = $('.comet-track');
     if (track) {
         const H = track.clientHeight;
-        const [back, front, flash] = [$('.clouds-back'), $('.clouds-front'), $('.cloud-flash')];
-        const [left, right] = $$('.cloud-half', front);
-        const head = $('.comet-head'), tail = $('.comet-tail'), glow = $('.cloud-glow');
+        const comet = $('.comet'), head = $('.comet-head'), tail = $('.comet-tail');
         createTimeline({
             defaults: { ease: 'linear' },
             autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'end end', sync: .25 })
         })
-            .add('.comet', { y: [0, H], x: [0, -14], duration: 1000, ease: 'in(1.3)' }, 0)
-            .add(tail, { height: [36, 170], duration: 1000, ease: 'in(2)' }, 0)
-            .add([back, front], { y: ['100%', '0%'], duration: 160, ease: 'outQuad' }, 760)
-            .add(glow, { opacity: [0, 1], scale: [.4, 1.2], duration: 120, ease: 'inQuad' }, 860)
-            .add(head, { scale: [1, 1.8], duration: 120, ease: 'inQuad' }, 860)
-            .add(left, { x: ['0vw', '-62vw'], opacity: [1, 0], duration: 70, ease: 'inQuad' }, 930)
-            .add(right, { x: ['0vw', '62vw'], opacity: [1, 0], duration: 70, ease: 'inQuad' }, 930)
-            .add(back, { opacity: [1, .35], duration: 70 }, 930)
-            .add(flash, { opacity: [0, 1, 0], duration: 70 }, 930)
-            .add('.cloud-ring', { scale: [.2, 7], opacity: [1, 0], duration: 70, ease: 'outQuad' }, 930)
-            .add(head, { scale: [1.8, 3.2], duration: 70, ease: 'outQuad' }, 930)
-            .add(tail, { opacity: [1, .5], duration: 70 }, 930);
+            .add(comet, { y: [0, H], x: [0, -14], duration: 1000, ease: 'in(1.3)' }, 0)
+            .add(comet, { scale: [1, 2.4], duration: 1000, ease: 'in(4)' }, 0)
+            .add(tail, { height: [36, 150], duration: 1000, ease: 'in(2)' }, 0);
+
+        const footer = $('.footer'), sky = $('.footer-sky');
+        if (footer && sky) {
+            const [back, front] = $$('.clouds', sky);
+            const [left, right] = $$('.cloud-half', front);
+            const glow = $('.cloud-glow', sky);
+            const swing = () => track.getBoundingClientRect().left - root.clientWidth * .56;
+            createTimeline({
+                defaults: { ease: 'linear' },
+                autoplay: onScroll({ target: footer, enter: 'end start', leave: 'end end', sync: .25 })
+            })
+                .add(back, { y: ['45%', '0%'], duration: 380, ease: 'outQuad' }, 0)
+                .add(glow, { opacity: [0, 1], scale: [.4, 1.25], duration: 260, ease: 'inQuad' }, 300)
+                .add(head, { scale: [1, 1.6], duration: 260, ease: 'inQuad' }, 300)
+                .add(left, { x: ['0%', '-72%'], opacity: [1, 0], duration: 220, ease: 'inQuad' }, 560)
+                .add(right, { x: ['0%', '72%'], opacity: [1, 0], duration: 220, ease: 'inQuad' }, 560)
+                .add(back, { opacity: [1, 0], duration: 260 }, 560)
+                .add(glow, { opacity: [1, 0], duration: 200 }, 600)
+                .add('.cloud-flash', { opacity: [0, 1, 0], duration: 220 }, 560)
+                .add('.comet-ring', { scale: [.2, 4], opacity: [1, 0], duration: 220, ease: 'outQuad' }, 560)
+                .add(track, { x: [0, () => -swing()], duration: 440, ease: 'inOutSine' }, 560)
+                .add(comet, { rotate: [0, 55], duration: 300, ease: 'outQuad' }, 560);
+
+            // At the very bottom of the page the comet crashes (once, until you scroll back up a bit)
+            let armed = true, busy = false;
+            const check = () => {
+                if (busy) return;
+                const gap = root.scrollHeight - innerHeight - scrollY;
+                if (armed && gap <= 2) {
+                    armed = false;
+                    busy = true;
+                    meteorCrash(() => { busy = false; check(); });
+                } else if (!armed && gap > innerHeight * .35) {
+                    armed = true;
+                    track.classList.remove('crashed');
+                }
+            };
+            addEventListener('scroll', check, { passive: true });
+            stopCrash = () => removeEventListener('scroll', check);
+        }
 
         // The tail shimmers and the head pulses all the time, even when you stop scrolling
         animate(tail, { '--sweep': ['120%', '-120%'], duration: 1300, ease: 'linear', loop: true });
@@ -611,6 +996,8 @@ skyReady.then(() => createScope({
             autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'start start+=240', sync: .25 })
         });
     }
+
+    return () => stopCrash?.();
 }).addOnce(self => {
     if (self.matches.reduce) return;
 
