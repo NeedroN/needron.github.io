@@ -18,6 +18,17 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script>
         document.documentElement.classList.add('js');
+        // Page transitions: cover the page until the meteor shower takes over (main.js).
+        // pt-arrive = came from another page of the site; pt-intro = home page opened or refreshed.
+        try {
+            const fromSite = sessionStorage.getItem('pt');
+            sessionStorage.removeItem('pt');
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                if (fromSite) document.documentElement.classList.add('pt-arrive');
+                else if (document.documentElement.hasAttribute('data-intro') && nav?.type !== 'back_forward') document.documentElement.classList.add('pt-intro');
+            }
+        } catch (e) {}
         setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
     </script>
 </head>

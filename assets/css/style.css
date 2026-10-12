@@ -1754,6 +1754,138 @@ a.card:hover {
 }
 
 
+/* Scroll meteors (moved by main.js as you scroll): bright head, long tail that fades from blue to pink */
+.sky {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.meteor {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.meteor b {
+    position: absolute;
+    right: 0;
+    top: -1px;
+    width: var(--len);
+    height: 2px;
+    border-radius: 2px;
+    opacity: 0;
+    rotate: 126deg;                  /* points the head down and to the left, the way it travels */
+    transform-origin: 100% 50%;
+    background: linear-gradient(90deg, rgba(255, 160, 215, 0), rgba(var(--tint), .45) 55%, #fff);
+}
+
+/* A glint of light that keeps running along the tail */
+.meteor b::before {
+    content: "";
+    position: absolute;
+    inset: -1px 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent 40%, rgba(255, 255, 255, .9) 50%, transparent 60%) var(--sweep, 120%) 0 / 200% 100% no-repeat;
+}
+
+/* The glowing head */
+.meteor b::after {
+    content: "";
+    position: absolute;
+    right: -2px;
+    top: -2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 8px 3px rgba(var(--tint), .8), 0 0 22px 6px rgba(var(--tint), .35);
+}
+
+
+/* ==========================================================================
+   Page transitions and startup intro (meteor shower)
+   ========================================================================== */
+/* Covers the page from the first paint until main.js takes over (removed after 2.5s if it can't load) */
+.js.pt-arrive body::after,
+.js.pt-intro body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #07051a;
+}
+
+/* Twilight sky: deep blue overhead, violet and pink glow on the horizon */
+.warp {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    pointer-events: none;
+    background:
+        radial-gradient(120% 60% at 50% 115%, rgba(255, 122, 200, .32), transparent 65%),
+        radial-gradient(90% 60% at 50% 105%, rgba(123, 77, 255, .35), transparent 70%),
+        linear-gradient(#030210, #0b0926 55%, #1a1242);
+}
+
+.warp canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.warp.is-intro {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.intro-brand {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.intro-brand img {
+    width: clamp(72px, 12vw, 112px);
+    height: auto;
+    filter: drop-shadow(0 0 24px rgba(255, 122, 200, .45));
+}
+
+.intro-name {
+    min-height: 1.1em;
+    font: 600 clamp(2.4rem, 8vw, 4.6rem)/1.1 var(--font-display);
+    letter-spacing: -.01em;
+    color: var(--text);
+    text-shadow: 0 0 30px rgba(169, 139, 255, .55);
+}
+
+.intro-tag {
+    color: var(--text-soft);
+    font: 500 .8rem var(--font-mono);
+    letter-spacing: .3em;
+    text-transform: uppercase;
+}
+
+.intro-skip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--space-4);
+    color: var(--text-dim);
+    font: 400 .75rem var(--font-mono);
+    letter-spacing: .1em;
+    text-align: center;
+}
+
+
 /* ==========================================================================
    404 page
    ========================================================================== */

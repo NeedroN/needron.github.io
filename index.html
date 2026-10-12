@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-intro>
 <head>
     <!-- ========== Page info (browser tab, Google and link previews) ========== -->
     <meta charset="UTF-8">
@@ -24,6 +24,17 @@
     <!-- Hide animated elements until anime.js is ready; show them anyway if it fails to load -->
     <script>
         document.documentElement.classList.add('js');
+        // Page transitions: cover the page until the meteor shower takes over (main.js).
+        // pt-arrive = came from another page of the site; pt-intro = home page opened or refreshed.
+        try {
+            const fromSite = sessionStorage.getItem('pt');
+            sessionStorage.removeItem('pt');
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                if (fromSite) document.documentElement.classList.add('pt-arrive');
+                else if (document.documentElement.hasAttribute('data-intro') && nav?.type !== 'back_forward') document.documentElement.classList.add('pt-intro');
+            }
+        } catch (e) {}
         // Preview mode (your own computer, or any page with ?preview): shows draft items and "add file" labels
         if (/^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || location.search.includes('preview')) {
             document.documentElement.classList.add('dev');
@@ -75,10 +86,10 @@
                         <strong>Universiti Tun Hussein Onn Malaysia</strong> and an anime-style illustrator.
                     </p>
 
-                    <!-- "Currently" line: edit to what you're working on -->
+                    <!-- "Currently" line: it cycles through the items in data-rotate (separated by |) -->
                     <p class="now" data-hero>
                         <span>Currently</span>
-                        <b>training my own language model</b>
+                        <b data-rotate="training my own language model|playing with HimeAI|learning Japanese|making new illustrations">training my own language model</b>
                     </p>
 
                     <div class="hero-cta" data-hero>
