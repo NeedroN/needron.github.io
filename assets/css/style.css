@@ -1805,6 +1805,136 @@ a.card:hover {
 }
 
 
+/* Scroll progress comet: rides down the right edge as you scroll */
+.comet-track {
+    position: fixed;
+    top: 96px;
+    bottom: 56px;
+    right: clamp(10px, 2.2vw, 32px);
+    z-index: 60;
+    width: 0;
+    pointer-events: none;
+}
+
+.comet {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* Tail points back up the way it came; a glint keeps running down it */
+.comet-tail {
+    position: absolute;
+    left: -1.5px;
+    bottom: 0;
+    width: 3px;
+    height: 36px;
+    border-radius: 3px;
+    transform-origin: 50% 100%;
+    rotate: -5deg;
+    background: linear-gradient(rgba(255, 160, 215, 0), rgba(170, 225, 255, .55) 60%, #fff);
+    overflow: hidden;
+}
+
+.comet-tail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 40%, rgba(255, 255, 255, .95) 50%, transparent 60%) 0 var(--sweep, 120%) / 100% 200% no-repeat;
+}
+
+.comet-head {
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+        0 0 calc(12px * var(--pulse, 1)) 4px rgba(170, 225, 255, .85),
+        0 0 calc(34px * var(--pulse, 1)) 10px rgba(255, 160, 215, .4);
+}
+
+/* Cloud bank at the bottom of the screen: rises in near the end of the page, parts when the comet breaks through */
+.clouds {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 34vh;
+    pointer-events: none;
+    transform: translateY(100%);
+    filter: blur(10px);
+}
+
+.clouds-back {
+    z-index: -1;
+}
+
+.clouds-front {
+    z-index: 61;                     /* above the comet, so it dives into them */
+    height: 22vh;
+    opacity: .85;
+}
+
+.clouds i {
+    position: absolute;
+    aspect-ratio: 2.2 / 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(55% 45% at 50% 22%, rgba(255, 180, 210, .55), transparent 70%),
+        radial-gradient(closest-side, #3a2a7a 0%, rgba(58, 42, 122, .9) 55%, transparent 100%);
+}
+
+.clouds-front i {
+    background:
+        radial-gradient(55% 40% at 50% 20%, rgba(255, 200, 220, .6), transparent 70%),
+        radial-gradient(closest-side, #2a1f5c 0%, rgba(42, 31, 92, .92) 55%, transparent 100%);
+}
+
+.cloud-half {
+    position: absolute;
+    inset: 0;
+}
+
+/* Light from the comet inside the clouds (it sits under the comet, on the right) */
+.cloud-glow {
+    position: absolute;
+    right: -18vw;
+    bottom: -10vh;
+    width: 75vw;
+    height: 55vh;
+    border-radius: 50%;
+    opacity: 0;
+    background: radial-gradient(closest-side, #fff, rgba(255, 190, 215, .9) 25%, rgba(255, 130, 185, .5) 55%, transparent);
+}
+
+.cloud-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 62;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(80% 70% at 96% 100%, rgba(255, 240, 248, .8), rgba(255, 160, 215, .3) 45%, transparent 75%);
+}
+
+/* Shock ring where the comet bursts through */
+.cloud-ring {
+    position: fixed;
+    right: calc(clamp(10px, 2.2vw, 32px) - 40px);
+    bottom: 16px;
+    z-index: 62;
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(255, 220, 235, .9);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 0 24px rgba(255, 160, 215, .6), inset 0 0 18px rgba(170, 225, 255, .5);
+}
+
+
 /* ==========================================================================
    Page transitions and startup intro (meteor shower)
    ========================================================================== */
@@ -1991,11 +2121,25 @@ a.card:hover {
     opacity: 0;
 }
 
+.js .comet-track {
+    opacity: 0;
+}
+
 .js .hero-title {
     visibility: hidden;
 }
 
 /* Visitors who prefer less motion: show everything, no movement */
+/* No scroll comet or clouds when motion is reduced */
+@media (prefers-reduced-motion: reduce) {
+    .comet-track,
+    .clouds,
+    .cloud-flash,
+    .cloud-ring {
+        display: none;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;

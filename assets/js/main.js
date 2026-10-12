@@ -210,6 +210,22 @@ if (canvas && document.documentElement.scrollHeight > innerHeight * 1.6) {
     skyLayer.innerHTML = meteorTints.concat(meteorTints, meteorTints).slice(0, 10)
         .map(c => `<i class="meteor" style="--tint:${c};--len:${(160 + Math.random() * 220) | 0}px"><b></b></i>`).join('');
     canvas.after(skyLayer);
+
+    // Scroll progress comet (right edge) and the cloud bank it breaks through at the bottom of the page
+    const puffs = (n, from, to) => Array.from({ length: n }, (_, i) => {
+        const w = 26 + Math.random() * 22;
+        const left = from + (to - from) * (i / (n - 1 || 1)) - w / 2 + Math.random() * 6 - 3;
+        return `<i style="left:${left.toFixed(1)}vw;width:${w.toFixed(1)}vw;bottom:${(-8 - Math.random() * 10).toFixed(1)}vh"></i>`;
+    }).join('');
+    document.body.insertAdjacentHTML('beforeend', `
+        <div class="clouds clouds-back" aria-hidden="true">${puffs(7, -5, 105)}<b class="cloud-glow"></b></div>
+        <div class="comet-track" aria-hidden="true"><div class="comet"><i class="comet-tail"></i><i class="comet-head"></i></div></div>
+        <div class="clouds clouds-front" aria-hidden="true">
+            <div class="cloud-half">${puffs(4, -8, 46)}</div>
+            <div class="cloud-half">${puffs(4, 54, 108)}</div>
+        </div>
+        <div class="cloud-flash" aria-hidden="true"></div>
+        <div class="cloud-ring" aria-hidden="true"></div>`);
 }
 
 
@@ -358,6 +374,9 @@ const intro = () => {
     const start = [W * 1.05, -H * .08], reach = Math.hypot(W * 1.15, H * 1.08);
     const path = Math.min(sky.fall + .25, Math.atan2(H * 1.08, -W * 1.15));
     const comet = { p: 0, len: 0 }, frag = { p: 0, on: false, x: 0, y: 0 }, burst = { r: 0, a: 0 };
+    // Hand-off: at the end a small comet flies from the logo to the top of the scroll progress track
+    const dock = $('.comet-track')?.getBoundingClientRect();
+    const hand = { p: 0, on: false, from: [W / 2, H / 2 - 40], to: dock ? [dock.left, dock.top] : [W - 30, 96] };
     const pos = (p, angle, from = start, dist = reach) => [from[0] + Math.cos(angle) * dist * p, from[1] + Math.sin(angle) * dist * p];
     const drawComet = (c, x, y, angle, len, size, streak) => {
         streak(x, y, angle, len * 1.1, 14 * size, '120,190,255', .18);       // wide soft glow
@@ -386,6 +405,12 @@ const intro = () => {
             const [x, y] = pos(frag.p, path + .2, [frag.x, frag.y], reach * .6);
             drawComet(c, x, y, path + .2, comet.len * .55, .6, streak);
         }
+        if (hand.on && hand.p < 1) {
+            const angle = Math.atan2(hand.to[1] - hand.from[1], hand.to[0] - hand.from[0]);
+            const x = hand.from[0] + (hand.to[0] - hand.from[0]) * hand.p;
+            const y = hand.from[1] + (hand.to[1] - hand.from[1]) * hand.p;
+            drawComet(c, x, y, angle, 60 + 180 * Math.sin(hand.p * Math.PI), .55, streak);
+        }
         if (burst.a > 0) {
             const g = c.createRadialGradient(frag.x, frag.y, 0, frag.x, frag.y, burst.r);
             g.addColorStop(0, `rgba(255,220,240,${burst.a})`);
@@ -402,10 +427,13 @@ const intro = () => {
         if (lifted) return;
         lifted = true;
         tl.pause();
-        skyGo();
         animate(state, { rate: 0, duration: 500 });
-        waapi.animate(brand, { opacity: 0, scale: 1.06, duration: 500, ease: 'inQuad' });
-        waapi.animate(warp, { opacity: [1, 0], duration: 900, delay: 150, ease: 'inOutQuad' }).then(sky.done);
+        waapi.animate(brand, { opacity: 0, scale: 1.06, duration: 400, ease: 'inQuad' });
+        // The comet docks at the scroll track, then the sky fades and the page's own comet takes over
+        hand.on = true;
+        animate(hand, { p: [0, 1], duration: dock ? 750 : 1, ease: 'inOutQuad' });
+        setTimeout(skyGo, dock ? 600 : 0);
+        waapi.animate(warp, { opacity: [1, 0], duration: 800, delay: dock ? 550 : 150, ease: 'inOutQuad' }).then(sky.done);
     };
 
     const tl = createTimeline()
@@ -529,6 +557,37 @@ skyReady.then(() => createScope({
     }
 
 
+    /* ----- Scroll progress comet: travels down the right edge as you read; near the end of the page ----- */
+    // the clouds rise, light up from inside as it dives in, then part as it breaks through (synced to the scrollbar).
+    const track = $('.comet-track');
+    if (track) {
+        const H = track.clientHeight;
+        const [back, front, flash] = [$('.clouds-back'), $('.clouds-front'), $('.cloud-flash')];
+        const [left, right] = $$('.cloud-half', front);
+        const head = $('.comet-head'), tail = $('.comet-tail'), glow = $('.cloud-glow');
+        createTimeline({
+            defaults: { ease: 'linear' },
+            autoplay: onScroll({ target: document.body, enter: 'start start', leave: 'end end', sync: .25 })
+        })
+            .add('.comet', { y: [0, H], x: [0, -14], duration: 1000, ease: 'in(1.3)' }, 0)
+            .add(tail, { height: [36, 170], duration: 1000, ease: 'in(2)' }, 0)
+            .add([back, front], { y: ['100%', '0%'], duration: 160, ease: 'outQuad' }, 760)
+            .add(glow, { opacity: [0, 1], scale: [.4, 1.2], duration: 120, ease: 'inQuad' }, 860)
+            .add(head, { scale: [1, 1.8], duration: 120, ease: 'inQuad' }, 860)
+            .add(left, { x: ['0vw', '-62vw'], opacity: [1, 0], duration: 70, ease: 'inQuad' }, 930)
+            .add(right, { x: ['0vw', '62vw'], opacity: [1, 0], duration: 70, ease: 'inQuad' }, 930)
+            .add(back, { opacity: [1, .35], duration: 70 }, 930)
+            .add(flash, { opacity: [0, 1, 0], duration: 70 }, 930)
+            .add('.cloud-ring', { scale: [.2, 7], opacity: [1, 0], duration: 70, ease: 'outQuad' }, 930)
+            .add(head, { scale: [1.8, 3.2], duration: 70, ease: 'outQuad' }, 930)
+            .add(tail, { opacity: [1, .5], duration: 70 }, 930);
+
+        // The tail shimmers and the head pulses all the time, even when you stop scrolling
+        animate(tail, { '--sweep': ['120%', '-120%'], duration: 1300, ease: 'linear', loop: true });
+        animate(head, { '--pulse': [.7, 1], duration: 700, ease: 'inOutSine', loop: true, alternate: true });
+    }
+
+
     /* ----- Scroll cue: the word rolls upward letter by letter, a short line travels down the track ----- */
     // splitText's clone puts a copy of each letter underneath; sliding both up by 100% makes the word roll.
     if (wide && $('.scroll-cue')) {
@@ -554,6 +613,14 @@ skyReady.then(() => createScope({
     }
 }).addOnce(self => {
     if (self.matches.reduce) return;
+
+
+    /* ----- Progress comet arrives: lights up where the startup comet docked, its tail settling in ----- */
+    if ($('.comet-track')) {
+        createTimeline()
+            .add('.comet-track', { y: [-30, 0], opacity: [0, 1], duration: 700, ease: 'outExpo' })
+            .add('.comet-tail', { scaleY: [3, 1], duration: 1100, ease: 'outExpo' }, 0);
+    }
 
 
     /* ----- Hero intro: title rises word by word, the orbit rings draw themselves ----- */
