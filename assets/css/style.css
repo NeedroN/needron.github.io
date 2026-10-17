@@ -2174,6 +2174,750 @@ a.card:hover {
 }
 
 
+/* ==========================================================================
+   HimeAI page (projects/himeai.html)
+   ========================================================================== */
+.hime-page {
+    --lav: #d4b3ff;                   /* HimeAI's lavender (from her logo) */
+}
+
+/* ----- Boot intro: a field of 0s and 1s, the logo decodes, the page rebuilds itself ----- */
+.js.pt-boot body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #07051a;
+}
+
+.boot {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(70% 55% at 50% 50%, #170f33, #07051a 75%);
+    cursor: pointer;
+}
+
+.boot canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.boot-core {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--r);
+    background: radial-gradient(closest-side, rgba(7, 5, 26, .92), rgba(7, 5, 26, 0));
+    text-align: center;
+}
+
+.boot-crown {
+    width: 56px;
+    height: 56px;
+    fill: none;
+    stroke: var(--lav);
+    stroke-width: 3;
+    stroke-linejoin: round;
+}
+
+.boot-name {
+    min-width: 5ch;
+    font: 600 clamp(2.6rem, 9vw, 4.4rem)/1 var(--font-display);
+    letter-spacing: -.01em;
+    color: var(--lav);
+}
+
+.boot-name b {
+    font-weight: 600;
+    color: #fff;
+}
+
+.boot-log {
+    display: grid;
+    gap: 2px;
+    min-width: 230px;
+    color: var(--text-dim);
+    font: 400 .74rem/1.5 var(--font-mono);
+    text-align: left;
+}
+
+.boot-log span {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.boot-log em {
+    font-style: normal;
+    color: var(--sky);
+}
+
+.boot-bar {
+    width: 230px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--line);
+    overflow: hidden;
+}
+
+.boot-bar i {
+    display: block;
+    height: 100%;
+    background: var(--lav);
+    transform-origin: left;
+    transform: scaleX(0);
+}
+
+.boot-skip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--space-4);
+    color: var(--text-dim);
+    font: 400 .75rem var(--font-mono);
+    letter-spacing: .1em;
+    text-align: center;
+}
+
+/* ----- Hero ----- */
+.hime-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    align-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-5) var(--space-4);
+}
+
+.hime-hero .page-logo {
+    position: relative;
+    width: fit-content;
+    margin-bottom: var(--space-2);
+}
+
+/* The bright edge that sweeps across the logo while it rebuilds */
+.logo-scan {
+    position: absolute;
+    top: 8%;
+    bottom: 8%;
+    left: 0;
+    width: 2px;
+    background: var(--lav);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hime-hero .intro {
+    font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+}
+
+.hime-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: var(--space-4);
+}
+
+/* Private repository: a quiet badge instead of a link */
+.soon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 999px;
+    color: var(--text-dim);
+    font: 500 .8rem var(--font-mono);
+    cursor: default;
+}
+
+.soon-badge svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.soon-badge b {
+    font-weight: 500;
+}
+
+/* ----- Interactive crown (fake 3D: layers at different depths move with the tilt) ----- */
+.core {
+    position: relative;
+    perspective: 900px;
+}
+
+.core-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 420px;
+    margin-inline: auto;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(169, 139, 255, .13), rgba(18, 14, 32, .5) 70%, transparent);
+    color: var(--lav);
+    cursor: pointer;
+    transform-style: preserve-3d;
+    touch-action: manipulation;
+}
+
+.core-card > * {
+    position: absolute;
+    pointer-events: none;
+}
+
+.core-orbit,
+.core-binary {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.orbit-back {
+    fill: none;
+    stroke: var(--violet);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 700 420;
+    opacity: .8;
+}
+
+.orbit-moon {
+    fill: #fff;
+}
+
+.core-binary text {
+    fill: var(--text-dim);
+    font: 500 13px var(--font-mono);
+    letter-spacing: .12em;
+}
+
+.core-crown {
+    left: 31%;
+    top: 27%;
+    width: 38%;
+    height: 38%;
+    fill: none;
+    stroke: var(--lav);
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+}
+
+/* Four-pointed sparkles, like the ones beside the HimeAI logo */
+.core-spark {
+    width: 18px;
+    height: 18px;
+    background: var(--lav);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+
+.core-spark.s1 { left: 16%; top: 20%; }
+.core-spark.s2 { right: 14%; top: 34%; width: 12px; height: 12px; background: var(--sky); }
+.core-spark.s3 { right: 24%; bottom: 18%; width: 14px; height: 14px; background: var(--pink); }
+
+.core-status {
+    left: 50%;
+    bottom: 13%;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(10, 8, 20, .7);
+    color: var(--text-dim);
+    font: 400 .74rem var(--font-mono);
+    white-space: nowrap;
+    translate: -50% 0;
+}
+
+.core-status i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sky);
+}
+
+.core-status b {
+    min-width: 9ch;
+    font-weight: 500;
+    color: var(--text);
+    text-align: left;
+}
+
+/* Her speech bubble when you poke the crown */
+.core-bubble {
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    z-index: 2;
+    width: max-content;
+    max-width: min(300px, 90%);
+    padding: 10px 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+    color: var(--text);
+    font-size: .92rem;
+    line-height: 1.45;
+    text-align: center;
+    translate: -50% 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.core-bubble:empty {
+    display: none;
+}
+
+/* ----- Numbers ----- */
+.hime-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+}
+
+.hime-stats div {
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+}
+
+.hime-stats dd {
+    order: -1;
+    margin: 0;
+    font: 600 clamp(2rem, 4vw, 2.8rem)/1.1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}
+
+.hime-stats div {
+    display: flex;
+    flex-direction: column;
+}
+
+.hime-stats dt {
+    font: 500 .74rem var(--font-mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.hime-page .meta {
+    margin-top: var(--space-4);
+}
+
+.hime-section {
+    padding-top: clamp(72px, 10vw, var(--space-6));
+}
+
+/* ----- Feature menu ----- */
+.fx {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+}
+
+.fx-tabs {
+    position: relative;
+    display: grid;
+    gap: 4px;
+}
+
+.fx-tabs button {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--text-dim);
+    font: 500 1rem var(--font-body);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color .2s;
+}
+
+.fx-tabs button:hover,
+.fx-tabs button[aria-selected="true"] {
+    color: var(--text);
+}
+
+.fx-tabs small {
+    font: 500 .72rem var(--font-mono);
+    color: var(--text-dim);
+}
+
+.fx-tabs button[aria-selected="true"] small {
+    color: var(--lav);
+}
+
+/* The highlight that slides to the chosen tab (moved by main.js) */
+.fx-pill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--bg-soft);
+}
+
+.fx-stage {
+    min-height: 520px;
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+}
+
+.fx-panel h3 {
+    font-size: var(--fs-h3);
+    color: var(--c, var(--violet));
+}
+
+.fx-lede {
+    margin-top: 8px;
+    color: var(--text-soft);
+    max-width: 60ch;
+}
+
+.fx-lede a {
+    color: var(--pink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* "How it works": four steps joined by a line; a light runs along it on a loop */
+.flow {
+    display: flex;
+    align-items: center;
+    margin-top: var(--space-3);
+    counter-reset: f;
+}
+
+.flow li {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--bg);
+    color: var(--text-soft);
+    font: 500 .8rem/1.3 var(--font-mono);
+    text-align: center;
+    counter-increment: f;
+}
+
+.flow li + li {
+    margin-left: 28px;
+}
+
+/* The joining line between two steps */
+.flow li + li::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    width: 28px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-strong), var(--c, var(--violet)) var(--run, -20%), var(--line-strong) calc(var(--run, -20%) + 20%));
+}
+
+.fx-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.fx-list li {
+    padding-left: 16px;
+    border-left: 2px solid var(--line-strong);
+    transition: border-color .25s;
+}
+
+.fx-list li:hover {
+    border-color: var(--c, var(--violet));
+}
+
+.fx-list h4 {
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+
+.fx-list p {
+    color: var(--text-soft);
+    font-size: .95rem;
+    line-height: 1.6;
+}
+
+/* Without JavaScript every area is listed one after another */
+html:not(.js) .fx-panel[hidden] {
+    display: block !important;
+    margin-top: var(--space-5);
+}
+
+/* ----- Live trace ----- */
+.trace {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+}
+
+.trace-asks {
+    display: grid;
+    gap: 8px;
+}
+
+.trace-head {
+    margin-bottom: 4px;
+    font: 500 .74rem var(--font-mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.trace-asks button {
+    padding: 12px 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-soft);
+    font: 500 .95rem/1.35 var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    transition: color .2s, border-color .2s, background .2s;
+}
+
+.trace-asks button:hover {
+    color: var(--text);
+    border-color: var(--violet);
+}
+
+.trace-asks button[aria-pressed="true"] {
+    border-color: var(--violet);
+    background: var(--violet);
+    color: #120a24;
+}
+
+.trace-card {
+    min-height: 460px;
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+}
+
+.trace-idle {
+    color: var(--text-dim);
+}
+
+.trace-you:empty {
+    display: none;
+}
+
+.trace-you {
+    width: fit-content;
+    max-width: 85%;
+    margin-left: auto;
+    padding: 10px 16px;
+    border-radius: var(--r) var(--r) 4px var(--r);
+    background: var(--bg-soft);
+    color: var(--text);
+}
+
+/* The steps hang off one vertical line */
+.trace-steps {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    margin-top: var(--space-3);
+    padding-left: 22px;
+}
+
+.trace-steps::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--line-strong);
+    transform-origin: top;
+    transform: scaleY(var(--grow, 0));
+}
+
+.trace-steps li {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    color: var(--text-soft);
+    font-size: .95rem;
+    line-height: 1.5;
+}
+
+.trace-steps li::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    top: .5em;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    background: var(--c, var(--violet));
+    transform: rotate(45deg);
+}
+
+.trace-steps b {
+    flex: none;
+    min-width: 64px;
+    font: 500 .74rem var(--font-mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--c, var(--violet));
+}
+
+.trace-reply {
+    margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px var(--r) var(--r) var(--r);
+}
+
+.trace-emotion {
+    font: 500 .74rem var(--font-mono);
+    color: var(--pink);
+}
+
+.trace-text {
+    min-height: 1.7em;
+    margin-top: 4px;
+    color: var(--text);
+}
+
+.trace-note:empty {
+    display: none;
+}
+
+.trace-note {
+    margin-top: 4px;
+    color: var(--text-dim);
+    font-size: .88rem;
+}
+
+/* ----- Story ----- */
+.hime-story .prose {
+    margin-inline: auto;
+}
+
+.hime-story .prose section + section {
+    margin-top: var(--space-5);
+}
+
+/* ----- Phones and tablets ----- */
+@media (max-width: 900px) {
+    .hime-hero,
+    .fx,
+    .trace {
+        grid-template-columns: 1fr;
+    }
+
+    .hime-hero {
+        gap: var(--space-3);
+    }
+
+    .core-card {
+        max-width: 320px;
+    }
+
+    .hime-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Tabs and examples become a row you can swipe */
+    .fx-tabs,
+    .trace-asks {
+        display: flex;
+        overflow-x: auto;
+        margin-inline: -16px;
+        padding: 2px 16px 8px;
+        scrollbar-width: none;
+    }
+
+    .fx-tabs::-webkit-scrollbar,
+    .trace-asks::-webkit-scrollbar {
+        display: none;
+    }
+
+    .trace-asks button {
+        flex: none;
+        max-width: 260px;
+    }
+
+    .trace-head {
+        display: none;
+    }
+
+    .fx-stage,
+    .trace-card {
+        min-height: 0;
+        padding: var(--space-3);
+    }
+}
+
+@media (max-width: 640px) {
+    .flow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .flow li + li {
+        margin: 20px 0 0;
+    }
+
+    .flow li + li::before {
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: 100%;
+        width: 1px;
+        height: 20px;
+        background: linear-gradient(180deg, var(--line-strong), var(--c, var(--violet)) var(--run, -20%), var(--line-strong) calc(var(--run, -20%) + 20%));
+    }
+
+    .fx-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 /* ========== Animation start states (only while JavaScript animations are active) ========== */
 .js [data-reveal],
 .js [data-stagger] > * {
@@ -2198,6 +2942,13 @@ a.card:hover {
 
 .js .hero-title {
     visibility: hidden;
+}
+
+/* HimeAI page: text that decodes from binary, and the logo that rebuilds */
+.js .hime-page [data-decode],
+.js .hime-page .page-logo img,
+.js .hime-page .core {
+    opacity: 0;
 }
 
 /* Visitors who prefer less motion: show everything, no movement */
@@ -2225,6 +2976,12 @@ a.card:hover {
 
     .js .hero-title {
         visibility: visible;
+    }
+
+    .js .hime-page [data-decode],
+    .js .hime-page .page-logo img,
+    .js .hime-page .core {
+        opacity: 1;
     }
 
     *, *::before, *::after {
