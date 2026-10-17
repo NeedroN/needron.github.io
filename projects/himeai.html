@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-boot>
 <head>
     <!-- ========== Page info ========== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HimeAI · Needron</title>
-    <meta name="description" content="A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.">
+    <meta name="description" content="HimeAI is my local-first desktop AI companion: she listens, talks in English and Japanese, remembers, sees, moderates Discord and handles small jobs on my PC.">
     <meta property="og:title" content="HimeAI · Needron">
-    <meta property="og:description" content="A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.">
+    <meta property="og:description" content="HimeAI is my local-first desktop AI companion: she listens, talks in English and Japanese, remembers, sees, moderates Discord and handles small jobs on my PC.">
     <meta property="og:image" content="https://needron.github.io/assets/img/og-cover.png">
     <meta name="theme-color" content="#0a0814">
     <link rel="icon" href="../assets/img/projects/himeai-icon.png" type="image/png">
@@ -22,26 +22,24 @@
     <link rel="stylesheet" href="../assets/css/style.css">
     <script>
         document.documentElement.classList.add('js');
-        // Page transitions: cover the page until the meteor shower takes over (main.js).
-        // pt-arrive = came from another page of the site; pt-intro = home page opened or refreshed.
+        // Page transitions: cover the page until main.js takes over.
+        // pt-boot = this page's own binary boot intro (replaces the meteor shower here).
         try {
-            const fromSite = sessionStorage.getItem('pt');
             sessionStorage.removeItem('pt');
             const nav = performance.getEntriesByType('navigation')[0];
-            if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                if (fromSite) document.documentElement.classList.add('pt-arrive');
-                else if (document.documentElement.hasAttribute('data-intro') && nav?.type !== 'back_forward') document.documentElement.classList.add('pt-intro');
+            if (!matchMedia('(prefers-reduced-motion: reduce)').matches && nav?.type !== 'back_forward') {
+                document.documentElement.classList.add('pt-boot');
             }
         } catch (e) {}
         // Preview mode (your own computer, or any page with ?preview): shows draft items and "add file" labels
         if (/^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || location.search.includes('preview')) {
             document.documentElement.classList.add('dev');
         }
-        setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js'); }, 2500);
+        setTimeout(() => { if (!window.__animeReady) document.documentElement.classList.remove('js', 'pt-boot'); }, 2500);
     </script>
 </head>
 
-<body>
+<body class="hime-page">
     <a class="skip-link" href="#main">Skip to content</a>
     <canvas id="stars" aria-hidden="true"></canvas>
 
@@ -67,85 +65,299 @@
         </div>
     </header>
 
-    <main id="main" class="wrap" style="--c: var(--sky)">
+    <main id="main" class="wrap">
 
-        <!-- ========== Title, one-line summary and quick facts ========== -->
-        <header class="page-hero">
-            <a class="back" href="../index.html#work">← All work</a>
-            <p class="label" style="color: var(--sky)">Computer Science · Featured</p>
-            <h1 class="page-logo"><img src="../assets/img/projects/himeai-logo.webp" alt="HimeAI" width="1600" height="546"></h1>
-            <p class="intro" data-reveal>A desktop AI companion that chats, shows emotions and helps on my PC, running fully offline, with Hime as its Live2D avatar.</p>
-            <dl class="meta" data-stagger>
-                    <div><dt>Role</dt><dd>Solo developer</dd></div>
-                    <div><dt>Year</dt><dd>2026</dd></div>
-                    <div><dt>Stack</dt><dd>Python · FastAPI · PyTorch</dd></div>
-                    <div><dt>Status</dt><dd>In development</dd></div>
-                    <div><dt>Avatar</dt><dd>Live2D model by <a href="https://booth.pm/en/items/6499774" target="_blank" rel="noopener">Snow Bear Project</a></dd></div>
-            </dl>
+        <!-- ========== Hero: title and facts on the left, the interactive crown on the right ========== -->
+        <header class="hime-hero">
+            <div class="hime-hero-text">
+                <a class="back" href="../index.html#work">← All work</a>
+                <p class="label" data-decode>Computer Science · Featured</p>
+                <h1 class="page-logo">
+                    <img src="../assets/img/projects/himeai-logo.webp" alt="HimeAI" width="1600" height="547">
+                    <span class="logo-scan" aria-hidden="true"></span>
+                </h1>
+                <p class="intro" data-decode>My desktop AI companion. She listens, talks back in English and Japanese, remembers, sees, and handles the small jobs on my PC, all running locally.</p>
+
+                <div class="hime-cta" data-stagger>
+                    <a class="btn btn-primary" href="#features">Explore her features</a>
+                    <a class="btn" href="#demo">Watch the demo</a>
+                    <!-- The HimeAI repository is private for now. Swap this for a link when it goes public. -->
+                    <span class="soon-badge" title="The repository is private for now">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                        <b>Source code coming soon</b>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Interactive crown: tilts in 3D with your pointer, click or tap it and Hime answers -->
+            <div class="core" aria-label="Interactive HimeAI emblem: move your pointer over it, or click it">
+                <button class="core-card" type="button" aria-label="Poke the crown">
+                    <svg class="core-orbit" data-depth="1.6" viewBox="0 0 400 400" aria-hidden="true">
+                        <ellipse class="orbit-back" cx="200" cy="210" rx="178" ry="62"/>
+                        <circle class="orbit-moon" cx="378" cy="210" r="5"/>
+                    </svg>
+                    <svg class="core-binary" data-depth=".6" viewBox="0 0 400 400" aria-hidden="true">
+                        <defs><path id="binaryRing" d="M200 200 m-150 0 a150 150 0 1 1 300 0 a150 150 0 1 1 -300 0"/></defs>
+                        <!-- "Hime" spelled out in binary (ASCII), twice around the ring -->
+                        <text><textPath href="#binaryRing">01001000 01101001 01101101 01100101 · 01001000 01101001 01101101 01100101 ·</textPath></text>
+                    </svg>
+                    <svg class="core-crown" data-depth="2.4" viewBox="0 0 100 100" aria-hidden="true">
+                        <path d="M50 6 L59 17 L50 28 L41 17 Z"/>
+                        <path d="M12 82 L20 40 L36 58 L50 34 L64 58 L80 40 L88 82 Z"/>
+                    </svg>
+                    <span class="core-spark s1" data-depth="3" aria-hidden="true"></span>
+                    <span class="core-spark s2" data-depth="2" aria-hidden="true"></span>
+                    <span class="core-spark s3" data-depth="3.4" aria-hidden="true"></span>
+                    <span class="core-status" data-depth=".4"><i></i>mood · <b>curious</b></span>
+                </button>
+                <p class="core-bubble" role="status" aria-live="polite"></p>
+            </div>
         </header>
+
+        <!-- ========== Quick numbers: each one boots up in binary, then turns into the real number ========== -->
+        <dl class="hime-stats">
+            <div><dt>Python modules</dt><dd data-count="48">48</dd></div>
+            <div><dt>Lines of code</dt><dd data-count="68" data-suffix="k">68k</dd></div>
+            <div><dt>Emotions</dt><dd data-count="16">16</dd></div>
+            <div><dt>Languages</dt><dd data-count="2">2</dd></div>
+        </dl>
+
+        <!-- ========== Facts row ========== -->
+        <dl class="meta" data-stagger>
+            <div><dt>Role</dt><dd>Solo developer</dd></div>
+            <div><dt>Year</dt><dd>2026</dd></div>
+            <div><dt>Stack</dt><dd>Python · FastAPI · Ollama · Electron</dd></div>
+            <div><dt>Status</dt><dd>In development</dd></div>
+            <div><dt>Avatar</dt><dd>Live2D model by <a href="https://booth.pm/en/items/6499774" target="_blank" rel="noopener">Snow Bear Project</a></dd></div>
+        </dl>
 
         <!-- ========== Demo video (YouTube) ==========
              To change the video, replace the id in data-youtube and in the link below
              (the id is the part after youtu.be/ or watch?v=). YouTube only loads once Play is pressed. -->
-        <figure class="player" data-youtube="-MpivHh2h0s">
-            <div class="player-frame">
-                <img class="player-poster" src="../assets/img/projects/himeai-cover.webp" alt="" width="1600" height="900">
+        <section class="hime-section" id="demo">
+            <figure class="player" data-youtube="-MpivHh2h0s">
+                <div class="player-frame">
+                    <img class="player-poster" src="../assets/img/projects/himeai-cover.webp" alt="" width="1600" height="900">
 
-                <!-- Big play button: the ring draws itself; pressing it swaps in the YouTube player -->
-                <button class="player-big" type="button" aria-label="Play the demo video">
-                    <svg viewBox="0 0 96 96" aria-hidden="true">
-                        <circle class="player-ring" cx="48" cy="48" r="44"/>
-                        <path d="M40 30 L68 48 L40 66 Z"/>
-                    </svg>
-                </button>
+                    <!-- Big play button: the ring draws itself; pressing it swaps in the YouTube player -->
+                    <button class="player-big" type="button" aria-label="Play the demo video">
+                        <svg viewBox="0 0 96 96" aria-hidden="true">
+                            <circle class="player-ring" cx="48" cy="48" r="44"/>
+                            <path d="M40 30 L68 48 L40 66 Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <figcaption>HimeAI running on my PC: chatting with Hime, her expressions, and the offline models. <a href="https://youtu.be/-MpivHh2h0s" target="_blank" rel="noopener">Watch on YouTube ↗</a></figcaption>
+            </figure>
+        </section>
+
+        <!-- ========== Feature menu: pick an area on the left, its features and how it works show on the right ==========
+             To add a feature, copy one <li> inside that area's .fx-list. To add an area, add a tab button
+             and a matching .fx-panel (the ids must match: tab-xxx / fx-xxx). -->
+        <section class="hime-section" id="features">
+            <div class="section-head">
+                <p class="label" data-decode>Inside HimeAI</p>
+                <h2 class="title" data-decode>Everything she can do</h2>
+                <p class="intro" data-reveal>Eight areas, one companion. Pick one to see what's inside and how it works.</p>
             </div>
 
-            <figcaption>HimeAI running on my PC: chatting with Hime, her expressions, and the offline models. <a href="https://youtu.be/-MpivHh2h0s" target="_blank" rel="noopener">Watch on YouTube ↗</a></figcaption>
-        </figure>
+            <div class="fx" data-reveal>
+                <!-- ----- Area tabs ----- -->
+                <div class="fx-tabs" role="tablist" aria-label="HimeAI feature areas">
+                    <span class="fx-pill" aria-hidden="true"></span>
+                    <button role="tab" id="tab-mind" aria-controls="fx-mind" aria-selected="true"><small>01</small>Mind</button>
+                    <button role="tab" id="tab-voice" aria-controls="fx-voice" aria-selected="false" tabindex="-1"><small>02</small>Voice</button>
+                    <button role="tab" id="tab-avatar" aria-controls="fx-avatar" aria-selected="false" tabindex="-1"><small>03</small>Avatar</button>
+                    <button role="tab" id="tab-memory" aria-controls="fx-memory" aria-selected="false" tabindex="-1"><small>04</small>Memory</button>
+                    <button role="tab" id="tab-senses" aria-controls="fx-senses" aria-selected="false" tabindex="-1"><small>05</small>Senses</button>
+                    <button role="tab" id="tab-help" aria-controls="fx-help" aria-selected="false" tabindex="-1"><small>06</small>Everyday help</button>
+                    <button role="tab" id="tab-discord" aria-controls="fx-discord" aria-selected="false" tabindex="-1"><small>07</small>Discord</button>
+                    <button role="tab" id="tab-safety" aria-controls="fx-safety" aria-selected="false" tabindex="-1"><small>08</small>Safety</button>
+                </div>
 
-        <!-- ========== Story: contents list on the left, text on the right ========== -->
-        <div class="content">
-            <nav class="toc" aria-label="On this page">
-                <a href="#overview">Overview</a>
-                <a href="#built">What I built</a>
-                <a data-draft href="#learned">What I learned</a>
-                <a href="#next">What's next</a>
-                <a href="#gallery">Gallery</a>
-            </nav>
+                <div class="fx-stage">
+                    <!-- ----- 01 Mind ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-mind" aria-labelledby="tab-mind" style="--c: var(--violet)">
+                        <h3>Mind</h3>
+                        <p class="fx-lede">She thinks with a local model on my laptop GPU, and her mood carries over between chats.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>Your words</li><li>Thinks first</li><li>gemma3 via Ollama</li><li>Reply + emotion</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Local brain</h4><p>Any Ollama model (gemma3:4b by default), or my own small Transformer written from scratch.</p></li>
+                            <li><h4>Five personalities</h4><p>Himedere by default, plus Warm Princess, Royal Advisor, Spirited Heir and Reserved Noble, with sliders for humor and energy.</p></li>
+                            <li><h4>Thinks before hard answers</h4><p>Math, plans, code and comparisons get a private notes pass first. The notes are never stored.</p></li>
+                            <li><h4>A mood that lasts</h4><p>Happiness, energy and sulking drift over time and react to how you treat her.</p></li>
+                            <li><h4>Live replies</h4><p>Text streams in piece by piece while her voice is still being made.</p></li>
+                            <li><h4>Never robotic</h4><p>Fixed lines get reworded each time, but your own words, like reminder text, stay exact.</p></li>
+                        </ul>
+                    </div>
 
+                    <!-- ----- 02 Voice ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-voice" aria-labelledby="tab-voice" style="--c: var(--sky)" hidden>
+                        <h3>Voice</h3>
+                        <p class="fx-lede">Hands-free in English and Japanese, with a voice that follows her emotion.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>"Hey, Hime-sama"</li><li>faster-whisper</li><li>Her reply</li><li>Kokoro · VOICEVOX</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Wake word</h4><p>Say "Hey, Hime-sama" or turn voice on. Each phrase is sent after a second of quiet, with live word previews.</p></li>
+                            <li><h4>Hears both languages</h4><p>faster-whisper on the CPU, tuned to pick English or Japanese and drop Whisper's made-up phrases.</p></li>
+                            <li><h4>Two voices</h4><p>Kokoro-82M for English, VOICEVOX for Japanese. Each sentence goes to the voice of its own language.</p></li>
+                            <li><h4>Emotional Japanese</h4><p>VOICEVOX switches style and tunes pitch, speed and intonation to how she feels.</p></li>
+                            <li><h4>Typing in sync</h4><p>Replies type out in step with her voice, pausing where she pauses.</p></li>
+                            <li><h4>Real visualizer</h4><p>The bars follow her real voice, or the music your PC is playing.</p></li>
+                        </ul>
+                    </div>
+
+                    <!-- ----- 03 Avatar ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-avatar" aria-labelledby="tab-avatar" style="--c: var(--pink)" hidden>
+                        <h3>Avatar</h3>
+                        <p class="fx-lede">A Live2D avatar that reacts, idles and dances. The model is by <a href="https://booth.pm/en/items/6499774" target="_blank" rel="noopener">Snow Bear Project</a>; the behaviour around it is my code.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>Emotion tag</li><li>Expression + level</li><li>Gesture + lip sync</li><li>On your desktop</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>16 emotions</h4><p>8 basic and 8 stronger or mixed ones, each with levels, plus gestures and lip sync.</p></li>
+                            <li><h4>Reacts to touch</h4><p>Poke her and she complains, pat her head and she purrs, in English or Japanese.</p></li>
+                            <li><h4>An idle life</h4><p>She watches your mouse, sways, yawns, hums, and sulks if you ignore her too long.</p></li>
+                            <li><h4>Dances to music</h4><p>Finds the beat in what your PC plays and picks calm or hype moves to match.</p></li>
+                            <li><h4>Lives on your desktop</h4><p>A transparent, always-on-top window. Clicks pass through everywhere except her.</p></li>
+                            <li><h4>Falls asleep</h4><p>When the AI goes offline she dozes off, then wakes up with a greeting.</p></li>
+                        </ul>
+                    </div>
+
+                    <!-- ----- 04 Memory ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-memory" aria-labelledby="tab-memory" style="--c: var(--violet)" hidden>
+                        <h3>Memory</h3>
+                        <p class="fx-lede">She remembers what matters, finds it by meaning, and can study her own chats.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>"Remember that…"</li><li>Local SQLite</li><li>Recall by meaning</li><li>Her next reply</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Remembers on request</h4><p>"Remember my cat is called Mochi." Facts stay in a local file you can edit. Passwords are never saved.</p></li>
+                            <li><h4>Recall by meaning</h4><p>An embedding model finds the right memory even when you word it differently.</p></li>
+                            <li><h4>Obsidian vault</h4><p>Memories mirror to a Markdown vault with a daily log, and she can search your notes and to-dos.</p></li>
+                            <li><h4>Learns in the background</h4><p>Files, pictures and apps you use get summarised while she's idle.</p></li>
+                            <li><h4>Retrains herself</h4><p>One button fine-tunes her brain (QLoRA) on newer chats, in the background.</p></li>
+                        </ul>
+                    </div>
+
+                    <!-- ----- 05 Senses ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-senses" aria-labelledby="tab-senses" style="--c: var(--sky)" hidden>
+                        <h3>Senses</h3>
+                        <p class="fx-lede">Optional eyes and ears: she can see your screen and webcam, and hear what your PC plays.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>Screen · webcam · audio</li><li>Privacy checks</li><li>A short summary</li><li>A reaction</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Screen awareness</h4><p>She glances at your screen when it changes and reacts, like a friend watching along. Banking and private tabs are skipped.</p></li>
+                            <li><h4>Listening along</h4><p>Hears the last few seconds your PC played, only when asked, kept in memory only.</p></li>
+                            <li><h4>Webcam senses</h4><p>Gestures, feelings and presence, detected in the browser with MediaPipe. Only a summary reaches the backend.</p></li>
+                            <li><h4>Gestures she answers</h4><p>A wave, a thumbs up, a peace sign, a heart, or a stretch after a long session.</p></li>
+                            <li><h4>What she sees</h4><p>A live page shows her webcam overlay, her last look at the screen, and every step in between.</p></li>
+                        </ul>
+                    </div>
+
+                    <!-- ----- 06 Everyday help ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-help" aria-labelledby="tab-help" style="--c: var(--pink)" hidden>
+                        <h3>Everyday help</h3>
+                        <p class="fx-lede">Small jobs, started only by your own words. Anything that opens something asks first.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>Your words</li><li>Skill router</li><li>Done on your PC</li><li>She tells you</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Time and plans</h4><p>Timers, reminders, alarms, a calendar with Google sync, weather and a morning briefing.</p></li>
+                            <li><h4>Notes and math</h4><p>Quick notes, and an exact calculator that understands words, percent and Japanese.</p></li>
+                            <li><h4>Looks things up</h4><p>Wikipedia facts, and web research that keeps short notes on the pages she read.</p></li>
+                            <li><h4>Media control</h4><p>Spotify, YouTube, VLC and per-app volume by voice, plus a playlist for your mood.</p></li>
+                            <li><h4>Files and writing</h4><p>Reads documents in folders you pick and drafts a resume or letter as a Word file.</p></li>
+                            <li><h4>Art credit finder</h4><p>Finds the artist behind uncredited art from a username or the picture, using public sources only.</p></li>
+                        </ul>
+                    </div>
+
+                    <!-- ----- 07 Discord ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-discord" aria-labelledby="tab-discord" style="--c: var(--violet)" hidden>
+                        <h3>Discord</h3>
+                        <p class="fx-lede">She chats, moderates and plays music in my Discord server.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>Server message</li><li>Rules + strikes</li><li>Asks me first</li><li>Action</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Chat bot</h4><p>The full assistant in my DMs. Everyone else gets a sandboxed guest chat with no memory or files.</p></li>
+                            <li><h4>Moderator</h4><p>Spam, scam links and raids checked against rules, with a strike ladder from warning to timeout.</p></li>
+                            <li><h4>Anti-nuke</h4><p>Mass deletes or bans strip the culprit's roles at once, and everything can be restored in one click.</p></li>
+                            <li><h4>Voice channel DJ</h4><p>Joins a call, plays music or radio, and speaks her replies over it.</p></li>
+                            <li><h4>Mod dashboard</h4><p>Every case, waiting decision and live check is visible on one page.</p></li>
+                            <li><h4>Messages</h4><p>Reads Gmail and WhatsApp notifications. She always asks before sending anything.</p></li>
+                        </ul>
+                    </div>
+
+                    <!-- ----- 08 Safety ----- -->
+                    <div class="fx-panel" role="tabpanel" id="fx-safety" aria-labelledby="tab-safety" style="--c: var(--sky)" hidden>
+                        <h3>Safety</h3>
+                        <p class="fx-lede">Every power is off by default, checked on the server, and asks before it acts.</p>
+                        <ol class="flow" aria-label="How it works">
+                            <li>A request</li><li>Per-start token</li><li>Switch checked</li><li>She asks you</li>
+                        </ol>
+                        <ul class="fx-list">
+                            <li><h4>Locked to my PC</h4><p>Only the HimeAI page can reach the backend, with a secret token that's new on every start.</p></li>
+                            <li><h4>A switch for every power</h4><p>Apps, search, microphone, webcam, screen and files each have their own switch, off by default.</p></li>
+                            <li><h4>The Shield</h4><p>Defender and firewall status, link checks, leaked-password checks and file lookups by hash.</p></li>
+                            <li><h4>Defend mode</h4><p>One switch locks down her senses and outside access.</p></li>
+                            <li><h4>Guest mode</h4><p>When a friend is around, her memory, files and history stay hidden.</p></li>
+                            <li><h4>The Brain</h4><p>A monitor page for services, CPU and GPU, mood, memory, permissions and logs.</p></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== Live trace: pick something to say, watch the message travel through her ========== -->
+        <!-- The examples and their steps live in main.js (HimeAI page > traceDemos). -->
+        <section class="hime-section" id="trace">
+            <div class="section-head">
+                <p class="label" data-decode>How she thinks</p>
+                <h2 class="title" data-decode>Follow a message through her</h2>
+                <p class="intro" data-reveal>Pick something to say. Each step lights up as the message moves from her ears to her face.</p>
+            </div>
+
+            <div class="trace" data-reveal>
+                <div class="trace-asks" role="group" aria-label="Things to say">
+                    <span class="trace-head">You say</span>
+                    <button type="button" data-ask="timer" aria-pressed="false">Set a timer for 10 minutes called pasta</button>
+                    <button type="button" data-ask="screen" aria-pressed="false">What's on my screen?</button>
+                    <button type="button" data-ask="remember" aria-pressed="false">Remember that my cat is called Mochi</button>
+                    <button type="button" data-ask="music" aria-pressed="false">Play some jazz</button>
+                    <button type="button" data-ask="japanese" aria-pressed="false" lang="ja">おはよう、姫様</button>
+                </div>
+
+                <div class="trace-card" aria-live="polite">
+                    <p class="trace-you"></p>
+                    <ol class="trace-steps"></ol>
+                    <div class="trace-reply" hidden>
+                        <span class="trace-emotion"></span>
+                        <p class="trace-text"></p>
+                        <p class="trace-note"></p>
+                    </div>
+                    <p class="trace-idle">Pick something on the left to start.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== Story ========== -->
+        <section class="hime-section hime-story">
             <article class="prose">
                 <!-- ----- Overview ----- -->
                 <section id="overview" data-reveal>
-                    <h2>Overview</h2>
-                    <p>HimeAI is a personal assistant that lives on my own computer. You chat with Hime in a web window, and she answers with text, expressions and gestures that move her avatar. Nothing is sent to the cloud.</p>
-                    <p>I started it to learn how language models really work, so I am also building my own small model from scratch alongside ready-made local models.</p>
-                </section>
-
-                <!-- ----- What I built ----- -->
-                <section id="built" data-reveal>
-                    <h2>What I built</h2>
-                    <ol class="numbered">
-                        <li>
-                            <h3>A FastAPI backend</h3>
-                            <p>REST and WebSocket endpoints, a settings file, an emergency stop and an allow-list for anything that touches the PC.</p>
-                        </li>
-                        <li>
-                            <h3>My own Transformer language model</h3>
-                            <p>Tokenizer, attention, training loop and text generation written by hand, trained on TinyStories, then fine-tuned for chat with a persona.</p>
-                        </li>
-                        <li>
-                            <h3>Local Ollama models</h3>
-                            <p>Switch to a stronger local model from the chat window, with personality presets on top.</p>
-                        </li>
-                        <li>
-                            <h3>Emotions for the avatar</h3>
-                            <p>The model tags its replies with expressions and gestures, which drive Hime's face and pose.</p>
-                        </li>
-                    </ol>
+                    <h2 data-decode>Why I built her</h2>
+                    <p>HimeAI started as a way to learn how language models really work. Next to ready-made local models, I wrote my own small Transformer from scratch: tokenizer, attention, training loop and text generation, trained on TinyStories and fine-tuned for chat with a persona.</p>
+                    <p>It grew into a full companion. Everything runs on my laptop (an RTX 4050 with 6 GB), and nothing leaves it unless I switch a connection on.</p>
                 </section>
 
                 <!-- ----- What I learned ----- -->
-                <!-- Draft: delete data-draft (here and on the contents link) once you write it -->
+                <!-- Draft: delete data-draft once you write it -->
                 <section id="learned" data-draft data-reveal>
                     <h2>What I learned</h2>
                     <p>Placeholder: two or three sentences about the hardest problem you solved, such as fitting a model into 6 GB of VRAM, and what you would do differently.</p>
@@ -153,25 +365,21 @@
 
                 <!-- ----- What's next ----- -->
                 <section id="next" data-reveal>
-                    <h2>What's next</h2>
-                    <p>Japanese and English voice output, speech input, long-term memory, and new skills with security hardening.</p>
+                    <h2 data-decode>What's next</h2>
+                    <p>Smoother voice recognition, a stream mode, hearing people in Discord voice calls, and more training for her own brain on our conversations.</p>
                 </section>
 
                 <!-- ----- Gallery ----- -->
                 <section id="gallery" data-reveal>
-                    <h2>Gallery</h2>
+                    <h2 data-decode>Gallery</h2>
                     <div class="gallery">
                         <div class="ph" data-file="projects/himeai-01.webp"><img src="../assets/img/projects/himeai-01.webp" alt="HimeAI chat window" loading="lazy"></div>
                         <div class="ph" data-file="projects/himeai-02.webp"><img src="../assets/img/projects/himeai-02.webp" alt="Hime avatar expressions" loading="lazy"></div>
                         <div class="ph" data-file="projects/himeai-03.webp"><img src="../assets/img/projects/himeai-03.webp" alt="Training the model" loading="lazy"></div>
                     </div>
                 </section>
-
-                <div class="page-links" data-reveal>
-                    <a class="btn btn-primary" href="https://github.com/NeedroN" target="_blank" rel="noopener">View code on GitHub</a>
-                </div>
             </article>
-        </div>
+        </section>
 
         <!-- ========== Next project ========== -->
         <a class="next" href="illustrations.html">

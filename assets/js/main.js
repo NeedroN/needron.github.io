@@ -461,14 +461,121 @@ const intro = () => {
     setTimeout(lift, 6000);                           // safety net
 };
 
+// HimeAI page boot: a field of 0s and 1s lights up in a wave, the HimeAI name decodes out of it,
+// her start-up checklist ticks through, then the field dissolves and the page rebuilds itself.
+// Click, tap or any key skips it.
+const boot = () => {
+    const el = document.createElement('div');
+    el.className = 'boot';
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = `<canvas></canvas>
+        <div class="boot-core">
+            <svg class="boot-crown" viewBox="0 0 100 100"><path d="M50 6 L59 17 L50 28 L41 17 Z"/><path d="M12 82 L20 40 L36 58 L50 34 L64 58 L80 40 L88 82 Z"/></svg>
+            <div class="boot-name"><span>Hime</span><b>AI</b></div>
+            <div class="boot-log">
+                <span>backend<em>ok</em></span><span>language model<em>ok</em></span>
+                <span>voice<em>ok</em></span><span>avatar<em>ok</em></span>
+            </div>
+            <div class="boot-bar"><i></i></div>
+        </div>
+        <span class="boot-skip">Tap or click to skip</span>`;
+    document.body.append(el);
+    root.classList.remove('pt-boot');
+
+    const cv = $('canvas', el), c = cv.getContext('2d');
+    const core = $('.boot-core', el);
+    const [hime, ai] = $('.boot-name', el).children;
+    const logs = $$('.boot-log em', el);
+    const W = innerWidth, H = innerHeight;
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // The digits are drawn from two tiny pre-rendered sprites (much cheaper than text every frame)
+    const CW = 16, CH = 22;
+    const sprite = (ch, color) => {
+        const s = document.createElement('canvas');
+        s.width = CW * dpr;
+        s.height = CH * dpr;
+        const g = s.getContext('2d');
+        g.scale(dpr, dpr);
+        g.fillStyle = color;
+        g.font = '500 13px "JetBrains Mono", ui-monospace, monospace';
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText(ch, CW / 2, CH / 2);
+        return s;
+    };
+    const glyphs = [[sprite('0', '#d4b3ff'), sprite('1', '#d4b3ff')], [sprite('0', '#ffffff'), sprite('1', '#ffffff')]];
+    const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH);
+    const maxD = Math.hypot(W, H) / 2;
+    const cells = [];
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        const px = x * CW, py = y * CH;
+        cells.push({ px, py, d: Math.hypot(px + CW / 2 - W / 2, py + CH / 2 - H / 2) / maxD, v: Math.random() < .5 ? 0 : 1, n: Math.random() });
+    }
+
+    // state.wave = how far the bright ring has travelled (0 = centre, 1 = corners); state.fade = whole field
+    const state = { wave: 0, fade: 1 };
+    const timer = createTimer({
+        loop: true,
+        onUpdate: () => {
+            c.clearRect(0, 0, W, H);
+            for (const cell of cells) {
+                if (Math.random() < .04) cell.v ^= 1;
+                const ring = Math.exp(-((cell.d - state.wave) ** 2) / .006);
+                const a = (cell.d < state.wave ? .1 + cell.n * .12 : .03 + cell.n * .05) + ring * .75;
+                if (a * state.fade < .02) continue;
+                c.globalAlpha = Math.min(1, a * state.fade);
+                c.drawImage(glyphs[ring > .5 ? 1 : 0][cell.v], cell.px, cell.py, CW, CH);
+            }
+            c.globalAlpha = 1;
+        }
+    });
+
+    utils.set(core, { opacity: 0 });
+    hime.textContent = '';
+    ai.textContent = '';
+    utils.set(logs, { opacity: 0 });
+
+    let lifted = false;
+    const lift = () => {
+        if (lifted) return;
+        lifted = true;
+        tl.pause();
+        animate(state, { fade: 0, duration: 450, ease: 'inQuad' });
+        waapi.animate(core, { opacity: 0, scale: 1.06, duration: 350, ease: 'inQuad' });
+        setTimeout(skyGo, 120);
+        waapi.animate(el, { opacity: [1, 0], duration: 500, delay: 150, ease: 'inOutQuad' }).then(() => {
+            timer.cancel();
+            el.remove();
+        });
+    };
+
+    const tl = createTimeline()
+        .add(state, { wave: [0, 1.15], duration: 1300, ease: 'inOutSine' }, 0)
+        .add(core, { opacity: [0, 1], duration: 400, ease: 'outQuart' }, 150)
+        .add(createDrawable($$('.boot-crown path', el)), { draw: ['0 0', '0 1'], duration: 700, ease: 'inOutQuart' }, 150)
+        .add(hime, { innerHTML: scrambleText({ text: 'Hime', chars: '01' }), duration: 650 }, 250)
+        .add(ai, { innerHTML: scrambleText({ text: 'AI', chars: '01' }), duration: 500 }, 500)
+        .add('.boot-bar i', { scaleX: [0, 1], duration: 1100, ease: 'inOutQuad' }, 250)
+        .add(logs, { opacity: [0, 1], duration: 120, delay: stagger(220) }, 400)
+        .call(lift, 1550);
+
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(type => addEventListener(type, lift, { once: true, passive: true }));
+    setTimeout(lift, 4000);                           // safety net
+};
+
 try {
-    if (root.classList.contains('pt-arrive')) arrive();
+    if (root.classList.contains('pt-boot')) boot();
+    else if (root.classList.contains('pt-arrive')) arrive();
     else if (root.classList.contains('pt-intro')) intro();
     else skyGo();
 } catch (err) {
     // Never leave the page covered if something goes wrong
-    $$('.warp').forEach(w => w.remove());
-    root.classList.remove('pt-arrive', 'pt-intro');
+    $$('.warp, .boot').forEach(w => w.remove());
+    root.classList.remove('pt-arrive', 'pt-intro', 'pt-boot');
     skyGo();
 }
 
@@ -1429,3 +1536,363 @@ if (tocLinks.length) {
     }), { rootMargin: '-30% 0px -60% 0px' });
     tocLinks.forEach(a => { const s = $(a.hash); if (s) io.observe(s); });
 }
+
+
+/* ========== HimeAI page: the page rebuilds from binary, interactive crown, feature menu and live trace ========== */
+if ($('.hime-page')) skyReady.then(() => {
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const mouse = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const colorOf = el => getComputedStyle(el).getPropertyValue('--c').trim() || '#a98bff';
+    const hairline = 'rgba(196, 176, 255, .24)';
+
+    // Text decodes out of 0s and 1s (anime.js scrambleText)
+    const decode = (el, duration = 700, delay = 0) => {
+        const text = el.dataset.text ??= el.textContent.trim();
+        if (still) {
+            el.style.opacity = 1;
+            return;
+        }
+        return animate(el, {
+            innerHTML: scrambleText({ text, chars: '01', cursor: '_' }),
+            duration,
+            delay,
+            onBegin: () => el.style.opacity = 1
+        });
+    };
+
+    // Runs once, when the element first scrolls into view (straight away if it already is)
+    const whenSeen = (el, fn) => {
+        if (el.getBoundingClientRect().top < innerHeight - 60) return fn();
+        onScroll({ target: el, enter: 'bottom-=60 top', repeat: false, onEnter: fn });
+    };
+
+    // Loops that only run while their part of the page is on screen
+    const whileVisible = (el, loops) => {
+        new IntersectionObserver(([e]) => loops.forEach(l => e.isIntersecting ? l.resume() : l.pause())).observe(el);
+    };
+
+
+    /* ----- Hero rebuild: label and intro decode, the logo is redrawn left to right ----- */
+    const hero = $('.hime-hero');
+    const logo = $('.page-logo img', hero);
+    if (!still) {
+        $$('[data-decode]', hero).forEach((el, i) => decode(el, i ? 1100 : 500, i * 250));
+        waapi.animate(logo, { opacity: [0, 1], clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'], duration: 1000, delay: 150, ease: 'inOutQuart' });
+        animate('.logo-scan', { x: [0, logo.offsetWidth], opacity: [0, 1, 1, 0], duration: 1000, delay: 150, ease: 'inOutQuart' });
+    }
+
+    // Everything else decodes when it scrolls into view
+    $$('[data-decode]').filter(el => !hero.contains(el)).forEach(el => whenSeen(el, () => decode(el)));
+
+
+    /* ----- Numbers: shown in binary first, then decoded into the real number ----- */
+    $$('.hime-stats dd').forEach((dd, i) => {
+        if (still) return;
+        const text = dd.dataset.count + (dd.dataset.suffix || '');
+        dd.textContent = (+dd.dataset.count).toString(2);
+        whenSeen(dd, () => animate(dd, { innerHTML: scrambleText({ text, chars: '01' }), duration: 1000, delay: 400 + i * 120 }));
+    });
+
+
+    /* ----- Interactive crown: tilts in 3D with the pointer; poke it and Hime answers ----- */
+    const core = $('.core');
+    const card = $('.core-card', core);
+    const crown = $('.core-crown', card);
+    const sparks = $$('.core-spark', card);
+    const bubble = $('.core-bubble', core);
+    const mood = $('.core-status b', card);
+    const moods = ['curious', 'smug', 'happy', 'sleepy', 'proud', 'listening'];
+    const lines = [
+        'Hmph. You came all this way just to poke me?',
+        "D-don't touch the crown! It's royal property.",
+        "Everything I hear stays on this PC. I don't gossip.",
+        'I could set a timer for you. If you ask nicely.',
+        '日本語でもいいよ。…What? I can speak both.',
+        "Scroll down. My features won't read themselves."
+    ];
+    let line = -1, pokes = [], hideBubble;
+
+    const say = (text, feeling) => {
+        bubble.textContent = text;
+        if (feeling) mood.textContent = feeling;
+        clearTimeout(hideBubble);
+        if (!still) animate(bubble, { opacity: [0, 1], y: [8, 0], scale: [.94, 1], duration: 450, ease: 'outBack(1.6)' });
+        else bubble.style.opacity = 1;
+        hideBubble = setTimeout(() => {
+            if (still) bubble.style.opacity = 0;
+            else animate(bubble, { opacity: 0, y: -6, duration: 300, ease: 'inQuad' });
+        }, 3200);
+    };
+
+    card.addEventListener('click', () => {
+        const now = Date.now();
+        pokes = [...pokes.filter(t => now - t < 4000), now];
+        if (pokes.length >= 3) {
+            pokes = [];
+            say("That's three pokes. I'm sulking now.", 'sulking');
+        } else {
+            line = (line + 1) % lines.length;
+            say(lines[line], line === 1 ? 'flustered' : moods[(Math.random() * moods.length) | 0]);
+        }
+        if (still) return;
+        animate(crown, { scale: [1, 1.2, 1], rotate: [0, utils.random(-10, 10), 0], duration: 700, ease: 'outElastic(1, .5)' });
+        animate(sparks, { scale: [1, 1.8, 1], rotate: '+=90', duration: 600, delay: stagger(60), ease: 'outQuart' });
+    });
+
+    if (!still) {
+        // Entrance: the emblem settles in and the crown draws itself
+        waapi.animate(core, { opacity: [0, 1], scale: [.92, 1], duration: 900, delay: 300, ease });
+        animate(createDrawable($$('path', crown)), { draw: ['0 0', '0 1'], duration: 1200, delay: 450, ease: 'inOutQuart' });
+        setTimeout(() => say('Hmph. You came to see me?', 'curious'), 1700);
+
+        // Idle life: the moon circles the orbit, the binary ring turns, the crown floats, sparkles twinkle
+        const moon = $('.orbit-moon', card), orbitLine = $('.orbit-back', card);
+        utils.set('.core-orbit', { rotate: -12 });
+        const loops = [
+            createTimer({
+                loop: true,
+                onUpdate: t => {
+                    const a = t.currentTime / 1400;
+                    moon.setAttribute('cx', 200 + Math.cos(a) * 178);
+                    moon.setAttribute('cy', 210 + Math.sin(a) * 62);
+                    orbitLine.style.strokeDashoffset = -t.currentTime / 12;
+                }
+            }),
+            animate('.core-binary', { rotate: 360, duration: 60000, ease: 'linear', loop: true }),
+            animate($$('path', crown), { y: [-4, 4], duration: 1800, ease: 'inOutSine', loop: true, alternate: true }),
+            animate(sparks, { opacity: [.35, 1], duration: () => utils.random(700, 1300), delay: stagger(250), ease: 'inOutSine', loop: true, alternate: true }),
+            createTimer({
+                duration: 3400,
+                loop: true,
+                onLoop: () => animate(mood, {
+                    innerHTML: scrambleText({ text: moods[(moods.indexOf(mood.textContent) + 1) % moods.length], chars: '01' }),
+                    duration: 600
+                })
+            })
+        ];
+        whileVisible(core, loops);
+
+        // 3D tilt: the card turns toward the pointer and each layer slides by its depth
+        if (mouse) {
+            const tilt = createAnimatable(card, { rotateX: 600, rotateY: 600, ease: 'out(3)' });
+            const layers = $$('[data-depth]', card).map(el => [+el.dataset.depth, createAnimatable(el, { x: 600, y: 600, ease: 'out(3)' })]);
+            const lean = (nx, ny) => {
+                tilt.rotateY(nx * 16);
+                tilt.rotateX(-ny * 16);
+                layers.forEach(([d, a]) => { a.x(nx * d * 9); a.y(ny * d * 9); });
+            };
+            core.addEventListener('pointermove', e => {
+                const r = card.getBoundingClientRect();
+                lean((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
+            });
+            core.addEventListener('pointerleave', () => lean(0, 0));
+        }
+    }
+
+
+    /* ----- Feature menu: tabs on the left, the chosen area builds itself on the right ----- */
+    const fx = $('.fx');
+    const tabs = $$('[role="tab"]', fx);
+    const tabList = $('.fx-tabs', fx);
+    const pill = $('.fx-pill', fx);
+    const stage = $('.fx-stage', fx);
+    let current = tabs.find(t => t.getAttribute('aria-selected') === 'true');
+    let flow;
+
+    const placePill = (btn, instant) => {
+        const box = { x: btn.offsetLeft, y: btn.offsetTop, width: btn.offsetWidth, height: btn.offsetHeight };
+        if (instant || still) utils.set(pill, box);
+        else animate(pill, { ...box, duration: 550, ease: 'outBack(1.2)' });
+    };
+
+    // "How it works": a light runs down the line and each step glows in turn, on a loop
+    const runFlow = panel => {
+        flow?.revert();
+        if (still) return;
+        const steps = $$('.flow li', panel);
+        const color = colorOf(panel);
+        flow = createTimeline({ loop: true, loopDelay: 900 });
+        steps.forEach((li, i) => {
+            const at = i * 650;
+            if (i) flow.add(li, { '--run': ['-20%', '120%'], duration: 500, ease: 'linear' }, at - 500);
+            flow.add(li, { borderColor: [hairline, color, hairline], color: ['#b4abcb', '#eeeaf8', '#b4abcb'], duration: 900, ease: 'inOutSine' }, at);
+        });
+    };
+
+    const show = (btn, focus) => {
+        if (btn === current) return;
+        const from = $('#' + current.getAttribute('aria-controls'));
+        const to = $('#' + btn.getAttribute('aria-controls'));
+        tabs.forEach(t => {
+            t.setAttribute('aria-selected', t === btn);
+            t.tabIndex = t === btn ? 0 : -1;
+        });
+        current = btn;
+        if (focus) btn.focus({ preventScroll: true });
+        placePill(btn);
+        if (tabList.scrollWidth > tabList.clientWidth) tabList.scrollTo({ left: btn.offsetLeft - 16, behavior: still ? 'auto' : 'smooth' });
+
+        // Swap the panels, and let the box ease to its new height
+        const before = stage.offsetHeight;
+        from.hidden = true;
+        to.hidden = false;
+        runFlow(to);
+        if (still) return;
+        const after = stage.offsetHeight;
+        animate(stage, { height: [before, after], duration: 450, ease, onComplete: () => stage.style.height = '' });
+
+        // The new area builds itself: title from binary, then its steps and features
+        decode($('h3', to), 500);
+        waapi.animate($('.fx-lede', to), { opacity: [0, 1], y: [8, 0], duration: 500, delay: 100, ease });
+        waapi.animate($$('.flow li', to), { opacity: [0, 1], scale: [.9, 1], duration: 450, delay: stagger(70, { start: 150 }), ease });
+        waapi.animate($$('.fx-list li', to), { opacity: [0, 1], y: [14, 0], duration: 550, delay: stagger(55, { start: 250 }), ease });
+        $$('.fx-list h4', to).forEach((h, i) => decode(h, 450, 250 + i * 55));
+    };
+
+    tabs.forEach(t => t.addEventListener('click', () => show(t)));
+    tabList.addEventListener('keydown', e => {
+        const i = tabs.indexOf(current);
+        const go = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (go === undefined) return;
+        e.preventDefault();
+        show(tabs[(go + tabs.length) % tabs.length], true);
+    });
+
+    placePill(current, true);
+    addEventListener('resize', () => placePill(current, true), { passive: true });
+    document.fonts?.ready.then(() => placePill(current, true));
+    runFlow($('#' + current.getAttribute('aria-controls')));
+    if (flow) whileVisible(fx, [{ pause: () => flow?.pause(), resume: () => flow?.play() }]);
+
+    // Mouse hover: a feature's title flickers through binary
+    if (mouse && !still) $$('.fx-list li', fx).forEach(li => {
+        const h = $('h4', li);
+        li.addEventListener('pointerenter', () => animate(h, {
+            innerHTML: scrambleText({ text: h.dataset.text ??= h.textContent, chars: '01' }),
+            duration: 450
+        }));
+    });
+
+
+    /* ----- Live trace: one message travels through her, step by step ----- */
+    // To add an example: add a button with data-ask="name" in himeai.html and an entry here.
+    // Each step is [stage, what happens]; the stage picks the colour.
+    const stageColor = { ears: 'var(--sky)', senses: 'var(--sky)', voice: 'var(--sky)', router: 'var(--violet)', brain: 'var(--violet)', words: 'var(--violet)', skill: 'var(--pink)', memory: 'var(--pink)', avatar: 'var(--pink)' };
+    const traceDemos = {
+        timer: {
+            steps: [
+                ['ears', 'faster-whisper hears it in English'],
+                ['router', 'Your own words match the timer skill, so the language model is skipped'],
+                ['skill', 'A timer called "pasta" is set for 10:00 and saved on your PC'],
+                ['words', 'Her fixed line gets reworded, but "pasta" and "10" stay exact'],
+                ['voice', 'Kokoro speaks it in English'],
+                ['avatar', 'Expression: smug']
+            ],
+            emotion: 'smug',
+            reply: "Ten minutes for your pasta. Hmph, don't make me remind you twice."
+        },
+        screen: {
+            steps: [
+                ['ears', 'faster-whisper hears it in English'],
+                ['router', 'A question about your screen, and Screen Capture is switched on'],
+                ['senses', 'One screenshot of the active monitor. Banking and private windows would be skipped'],
+                ['brain', 'gemma3 looks at the picture and answers in character'],
+                ['voice', 'Kokoro speaks it in English'],
+                ['avatar', 'Expression: teasing']
+            ],
+            emotion: 'teasing',
+            reply: 'A code editor and… nineteen open tabs. You call that focused?'
+        },
+        remember: {
+            steps: [
+                ['ears', 'faster-whisper hears it in English'],
+                ['router', 'A memory request'],
+                ['memory', 'Saved to a local SQLite file and indexed so she can find it by meaning'],
+                ['voice', 'Kokoro speaks it in English'],
+                ['avatar', 'Expression: happy']
+            ],
+            emotion: 'happy',
+            reply: "Mochi. Noted. I'll remember your cat better than you remember to feed it."
+        },
+        music: {
+            steps: [
+                ['ears', 'faster-whisper hears it in English'],
+                ['router', 'A media request. Spotify is a known app, so she doesn\'t need to ask'],
+                ['skill', 'Spotify searches for jazz and starts playing'],
+                ['voice', 'Kokoro speaks it in English'],
+                ['avatar', 'With System Audio on, she finds the beat and starts to dance']
+            ],
+            emotion: 'happy',
+            reply: 'Jazz it is. Try to keep up.'
+        },
+        japanese: {
+            steps: [
+                ['ears', 'faster-whisper hears it in Japanese'],
+                ['router', 'Just conversation, so it goes to her brain'],
+                ['brain', 'Himedere persona, and her mood is still a little sleepy'],
+                ['voice', 'VOICEVOX speaks it, with a style picked to match her emotion'],
+                ['avatar', 'Expression: flustered']
+            ],
+            emotion: 'flustered',
+            reply: 'おはよう…べ、別に待ってたわけじゃないからね。',
+            note: '"Morning… i-it\'s not like I was waiting for you or anything."'
+        }
+    };
+
+    const trace = $('.trace');
+    const asks = $$('[data-ask]', trace);
+    const you = $('.trace-you', trace), stepList = $('.trace-steps', trace);
+    const reply = $('.trace-reply', trace), replyText = $('.trace-text', trace);
+    const emotion = $('.trace-emotion', trace), note = $('.trace-note', trace), idle = $('.trace-idle', trace);
+    let traceRun, typing, touched = false;
+
+    const play = btn => {
+        const demo = traceDemos[btn.dataset.ask];
+        if (!demo) return;
+        traceRun?.cancel();
+        typing?.cancel();
+        asks.forEach(b => b.setAttribute('aria-pressed', b === btn));
+        idle.hidden = true;
+        you.textContent = btn.textContent;
+        you.lang = btn.lang || '';
+        reply.hidden = true;
+        replyText.textContent = note.textContent = '';
+        replyText.lang = btn.lang || '';
+        stepList.innerHTML = demo.steps.map(([s, text]) => `<li style="--c: ${stageColor[s]}"><b>${s}</b><span>${text}</span></li>`).join('');
+        const items = $$('li', stepList);
+        const showReply = () => {
+            reply.hidden = false;
+            emotion.textContent = `[${demo.emotion}]`;
+            if (still) {
+                replyText.textContent = demo.reply;
+                note.textContent = demo.note || '';
+                return;
+            }
+            // Typed out like her real typing effect
+            const chars = [...demo.reply];
+            typing = createTimer({
+                duration: chars.length * 32,
+                onUpdate: t => replyText.textContent = chars.slice(0, Math.ceil(t.progress * chars.length)).join(''),
+                onComplete: () => note.textContent = demo.note || ''
+            });
+            waapi.animate(reply, { opacity: [0, 1], y: [10, 0], duration: 400, ease });
+        };
+
+        if (still) {
+            stepList.style.setProperty('--grow', 1);
+            return showReply();
+        }
+        const gap = 420;
+        utils.set(items, { opacity: 0 });
+        traceRun = createTimeline({ defaults: { ease } })
+            .add(you, { opacity: [0, 1], x: [16, 0], duration: 400 }, 0)
+            .add(stepList, { '--grow': [0, 1], duration: gap * items.length, ease: 'linear' }, 250)
+            .add(items, { opacity: [0, 1], x: [-10, 0], duration: 400, delay: stagger(gap) }, 250)
+            .add($$('b', stepList), { innerHTML: scrambleText({ chars: '01' }), duration: 400, delay: stagger(gap) }, 250)
+            .call(showReply, 250 + gap * items.length);
+    };
+
+    asks.forEach(b => b.addEventListener('click', () => { touched = true; play(b); }));
+    // Plays the first example by itself the first time the trace comes into view
+    whenSeen(trace, () => setTimeout(() => !touched && play(asks[0]), still ? 0 : 700));
+});
