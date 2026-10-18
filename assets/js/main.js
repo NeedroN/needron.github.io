@@ -1538,7 +1538,7 @@ if (tocLinks.length) {
 }
 
 
-/* ========== HimeAI page: the page rebuilds from binary, interactive crown, feature menu and live trace ========== */
+/* ========== HimeAI page: the page rebuilds from binary, Hime in the emblem, feature menu and live trace ========== */
 if ($('.hime-page')) skyReady.then(() => {
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const mouse = matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -1594,17 +1594,17 @@ if ($('.hime-page')) skyReady.then(() => {
     });
 
 
-    /* ----- Interactive crown: tilts in 3D with the pointer; poke it and Hime answers ----- */
+    /* ----- Hime herself: clips rendered from her Live2D model; poke her, pat her hat, she answers ----- */
     const core = $('.core');
     const card = $('.core-card', core);
-    const crown = $('.core-crown', card);
+    const himeBox = $('.core-hime', card);
     const sparks = $$('.core-spark', card);
     const bubble = $('.core-bubble', core);
     const mood = $('.core-status b', card);
     const moods = ['curious', 'smug', 'happy', 'sleepy', 'proud', 'listening'];
     const lines = [
         'Hmph. You came all this way just to poke me?',
-        "D-don't touch the crown! It's royal property.",
+        "D-don't touch the hat! It's royal property.",
         "Everything I hear stays on this PC. I don't gossip.",
         'I could set a timer for you. If you ask nicely.',
         '日本語でもいいよ。…What? I can speak both.',
@@ -1624,28 +1624,129 @@ if ($('.hime-page')) skyReady.then(() => {
         }, 3200);
     };
 
+    // Each reaction clip starts from the first frame of her idle loop, and the idle
+    // picks up again at the matching point when it ends, so the joins don't show.
+    // Safari can't draw see-through WebM, so there (and with reduced motion) she
+    // switches between still frames instead.
+    const LOOP = 6;
+    const reactions = { poke: 0, annoyed: 0, sulk: 0, pat: 0, sparkle: 0 };
+    const dir = '../assets/img/projects/hime/';
+    const ua = navigator.userAgent;
+    const webkitOnly = /iP(hone|ad|od)/.test(ua) || (/Safari\//.test(ua) && !/Chrom(e|ium)|Edg|Firefox|OPR/.test(ua));
+    const moving = !still && !webkitOnly && !!document.createElement('video').canPlayType('video/webm; codecs="vp9"');
+    const stillImg = $('.hime-still', himeBox);
+    const clips = {};
+    let playing = null, busyUntil = 0, stillTimer;
+
+    const clip = name => {
+        if (clips[name]) return clips[name];
+        const v = document.createElement('video');
+        v.className = 'hime-clip';
+        v.muted = v.playsInline = true;
+        v.preload = 'auto';
+        v.loop = name === 'idle';
+        v.src = dir + name + '.webm';
+        v.setAttribute('aria-hidden', 'true');
+        himeBox.append(v);
+        return clips[name] = v;
+    };
+    const loadReactions = () => Object.keys(reactions).forEach(clip);
+
+    const showClip = (v, fade) => {
+        himeBox.classList.toggle('fade', fade);
+        Object.values(clips).forEach(c => c.classList.toggle('on', c === v));
+        if (v.classList.contains('on')) stillImg.classList.add('off');
+    };
+
+    const react = name => {
+        busyUntil = Date.now() + 1800;
+        if (!moving) {
+            // Still frames: show her reaction for a moment, then back to idle
+            stillImg.src = dir + name + '.webp';
+            clearTimeout(stillTimer);
+            stillTimer = setTimeout(() => stillImg.src = dir + 'idle.webp', 2600);
+            if (!still) animate(stillImg, { scale: [1, 1.04, 1], duration: 500, ease: 'outQuad' });
+            return;
+        }
+        const v = clip(name), idle = clip('idle');
+        if (v.readyState < 3) return;   // not loaded yet: she answers in words only
+        if (playing && playing !== v) playing.pause();
+        playing = v;
+        v.currentTime = 0;
+        v.play().then(() => { showClip(v, true); idle.pause(); }).catch(() => {});
+        v.onended = () => {
+            if (playing !== v) return;
+            playing = null;
+            idle.currentTime = v.duration % LOOP;
+            idle.play().catch(() => {});
+            const back = () => showClip(idle, true);
+            idle.addEventListener('seeked', back, { once: true });
+        };
+    };
+
     card.addEventListener('click', () => {
         const now = Date.now();
         pokes = [...pokes.filter(t => now - t < 4000), now];
-        if (pokes.length >= 3) {
+        if (pokes.length >= 4) {
             pokes = [];
-            say("That's three pokes. I'm sulking now.", 'sulking');
+            say("That's it. I'm sulking now. Don't look at me.", 'sulking');
+            react('sulk');
+        } else if (pokes.length === 3) {
+            say('Stop poking me! Three times is too many.', 'annoyed');
+            react('annoyed');
         } else {
             line = (line + 1) % lines.length;
             say(lines[line], line === 1 ? 'flustered' : moods[(Math.random() * moods.length) | 0]);
+            react('poke');
         }
-        if (still) return;
-        animate(crown, { scale: [1, 1.2, 1], rotate: [0, utils.random(-10, 10), 0], duration: 700, ease: 'outElastic(1, .5)' });
-        animate(sparks, { scale: [1, 1.8, 1], rotate: '+=90', duration: 600, delay: stagger(60), ease: 'outQuart' });
+        if (!still) animate(sparks, { scale: [1, 1.8, 1], rotate: '+=90', duration: 600, delay: stagger(60), ease: 'outQuart' });
     });
 
-    if (!still) {
-        // Entrance: the emblem settles in and the crown draws itself
-        waapi.animate(core, { opacity: [0, 1], scale: [.92, 1], duration: 900, delay: 300, ease });
-        animate(createDrawable($$('path', crown)), { draw: ['0 0', '0 1'], duration: 1200, delay: 450, ease: 'inOutQuart' });
-        setTimeout(() => say('Hmph. You came to see me?', 'curious'), 1700);
+    // Patting: stroke back and forth over her hat with the mouse
+    if (mouse) {
+        let lastX = null, dirX = 0, turns = [];
+        card.addEventListener('pointermove', e => {
+            const r = card.getBoundingClientRect();
+            if ((e.clientY - r.top) / r.height > .42) return;
+            if (lastX !== null && Math.abs(e.clientX - lastX) > 6) {
+                const d = Math.sign(e.clientX - lastX);
+                const now = Date.now();
+                if (d !== dirX) turns = [...turns.filter(t => now - t < 1400), now];
+                dirX = d;
+                if (turns.length >= 4 && now > busyUntil) {
+                    turns = [];
+                    say('...Fine. You may pat me. A little.', 'happy');
+                    react('pat');
+                    busyUntil = now + 6000;
+                }
+            }
+            lastX = e.clientX;
+        });
+        card.addEventListener('pointerleave', () => { lastX = null; turns = []; });
+    }
 
-        // Idle life: the moon circles the orbit, the binary ring turns, the crown floats, sparkles twinkle
+    // Load her clips only when the hero is near the screen; reactions once you come close
+    stillImg.src = dir + 'idle.webp';
+    if (moving) {
+        const idle = clip('idle');
+        idle.addEventListener('playing', () => { if (!playing) showClip(idle, true); }, { once: true });
+        idle.play().catch(() => {});
+        clip('sparkle');
+        ['pointerenter', 'focusin', 'touchstart'].forEach(t => core.addEventListener(t, loadReactions, { once: true, passive: true }));
+    }
+
+    if (!still) {
+        // Entrance: the emblem settles in and Hime materializes out of the light
+        waapi.animate(core, { opacity: [0, 1], scale: [.92, 1], duration: 900, delay: 300, ease });
+        waapi.animate(himeBox, { opacity: [0, 1], y: [24, 0], filter: ['brightness(2.4) blur(8px)', 'brightness(1) blur(0px)'], duration: 1100, delay: 450, ease: 'outQuart' });
+        setTimeout(() => {
+            say('Oh! A visitor. ...I mean, hmph. Hello.', 'curious');
+            const sparkle = clips.sparkle;
+            if (sparkle && sparkle.readyState >= 3) react('sparkle');
+            else if (sparkle) sparkle.addEventListener('canplaythrough', () => { if (!playing && Date.now() > busyUntil) react('sparkle'); }, { once: true });
+        }, 1700);
+
+        // Idle life: the moon circles the orbit, the binary ring turns, sparkles twinkle, her mood drifts
         const moon = $('.orbit-moon', card), orbitLine = $('.orbit-back', card);
         utils.set('.core-orbit', { rotate: -12 });
         const loops = [
@@ -1659,17 +1760,21 @@ if ($('.hime-page')) skyReady.then(() => {
                 }
             }),
             animate('.core-binary', { rotate: 360, duration: 60000, ease: 'linear', loop: true }),
-            animate($$('path', crown), { y: [-4, 4], duration: 1800, ease: 'inOutSine', loop: true, alternate: true }),
             animate(sparks, { opacity: [.35, 1], duration: () => utils.random(700, 1300), delay: stagger(250), ease: 'inOutSine', loop: true, alternate: true }),
             createTimer({
                 duration: 3400,
                 loop: true,
-                onLoop: () => animate(mood, {
-                    innerHTML: scrambleText({ text: moods[(moods.indexOf(mood.textContent) + 1) % moods.length], chars: '01' }),
-                    duration: 600
-                })
+                onLoop: () => {
+                    if (playing || Date.now() < busyUntil + 1500) return;
+                    animate(mood, {
+                        innerHTML: scrambleText({ text: moods[(moods.indexOf(mood.textContent) + 1) % moods.length], chars: '01' }),
+                        duration: 600
+                    });
+                }
             })
         ];
+        // Her idle video rests too while the hero is off screen
+        if (moving) loops.push({ pause: () => clips.idle.pause(), resume: () => { if (!playing) clips.idle.play().catch(() => {}); } });
         whileVisible(core, loops);
 
         // 3D tilt: the card turns toward the pointer and each layer slides by its depth

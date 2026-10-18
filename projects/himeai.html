@@ -67,7 +67,7 @@
 
     <main id="main" class="wrap">
 
-        <!-- ========== Hero: title and facts on the left, the interactive crown on the right ========== -->
+        <!-- ========== Hero: title and facts on the left, Hime on the right ========== -->
         <header class="hime-hero">
             <div class="hime-hero-text">
                 <a class="back" href="../index.html#work">← All work</a>
@@ -89,9 +89,9 @@
                 </div>
             </div>
 
-            <!-- Interactive crown: tilts in 3D with your pointer, click or tap it and Hime answers -->
-            <div class="core" aria-label="Interactive HimeAI emblem: move your pointer over it, or click it">
-                <button class="core-card" type="button" aria-label="Poke the crown">
+            <!-- Hime in the emblem: tilts in 3D with your pointer; poke her or pat her hat and she answers -->
+            <div class="core" aria-label="Hime, interactive: click to poke her, or stroke her hat with the mouse">
+                <button class="core-card" type="button" aria-label="Poke Hime">
                     <svg class="core-orbit" data-depth="1.6" viewBox="0 0 400 400" aria-hidden="true">
                         <ellipse class="orbit-back" cx="200" cy="210" rx="178" ry="62"/>
                         <circle class="orbit-moon" cx="378" cy="210" r="5"/>
@@ -101,10 +101,10 @@
                         <!-- "Hime" spelled out in binary (ASCII), twice around the ring -->
                         <text><textPath href="#binaryRing">01001000 01101001 01101101 01100101 · 01001000 01101001 01101101 01100101 ·</textPath></text>
                     </svg>
-                    <svg class="core-crown" data-depth="2.4" viewBox="0 0 100 100" aria-hidden="true">
-                        <path d="M50 6 L59 17 L50 28 L41 17 Z"/>
-                        <path d="M12 82 L20 40 L36 58 L50 34 L64 58 L80 40 L88 82 Z"/>
-                    </svg>
+                    <!-- Hime: clips rendered from her Live2D model (see the credit below) -->
+                    <div class="core-hime" data-depth="1.2" aria-hidden="true">
+                        <img class="hime-still" src="../assets/img/projects/hime/idle.webp" alt="" width="480" height="600" decoding="async">
+                    </div>
                     <span class="core-spark s1" data-depth="3" aria-hidden="true"></span>
                     <span class="core-spark s2" data-depth="2" aria-hidden="true"></span>
                     <span class="core-spark s3" data-depth="3.4" aria-hidden="true"></span>
