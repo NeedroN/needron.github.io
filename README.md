@@ -32,8 +32,8 @@ The site is a place to explore projects, learn more about my experience, and fin
 
 ## Projects
 
-1.HimeAI
-2.Second Chance
+1. HimeAI
+2. Second Chance
 
 ---
 
